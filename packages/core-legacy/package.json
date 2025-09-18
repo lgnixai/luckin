@@ -22,6 +22,8 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
+    "@lgnixai/luckin-foundation": "workspace:*",
+    "@lgnixai/luckin-core": "workspace:*",
     "zustand": "^4.4.7",
     "immer": "^10.0.3",
     "lodash-es": "^4.17.21"

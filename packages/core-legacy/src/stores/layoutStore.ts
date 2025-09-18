@@ -1,172 +1,137 @@
+/**
+ * @deprecated This store is deprecated. Use configuration from @lgnixai/luckin-core instead
+ */
+
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { ILayout, UniqueId } from '../types';
+import { getGlobalApp } from '@lgnixai/luckin-core';
+
+console.warn('layoutStore is deprecated. Use configuration from @lgnixai/luckin-core instead.');
 
 interface LayoutState {
-  layout: ILayout;
-  setSplitPanePos: (pos: number[]) => void;
-  setHorizontalSplitPanePos: (pos: number[]) => void;
-  toggleActivityBar: () => void;
-  addActivityItem: (item: { id: string; label: string; icon?: string }) => void;
-  removeActivityItem: (id: string) => void;
-  togglePanel: () => void;
+  sidebarVisible: boolean;
+  sidebarWidth: number;
+  panelVisible: boolean;
+  panelHeight: number;
+  activityBarVisible: boolean;
+  statusBarVisible: boolean;
+  menuBarVisible: boolean;
+  isFullscreen: boolean;
+  
+  // Actions
   toggleSidebar: () => void;
-  toggleAuxiliaryBar: () => void;
-  toggleMenuBar: () => void;
+  setSidebarWidth: (width: number) => void;
+  togglePanel: () => void;
+  setPanelHeight: (height: number) => void;
+  toggleActivityBar: () => void;
   toggleStatusBar: () => void;
-  setPanelCurrent: (current: UniqueId) => void;
-  setSidebarCurrent: (current: UniqueId) => void;
-  setAuxiliaryBarCurrent: (current: UniqueId) => void;
-  addPanelTab: (id: string, label: string) => void;
-  removePanelTab: (id: string) => void;
-  setStatusText: (text: string) => void;
+  toggleMenuBar: () => void;
+  toggleFullscreen: () => void;
   resetLayout: () => void;
 }
 
-const defaultLayout: ILayout = {
-  splitPanePos: [300, 0],
-  horizontalSplitPanePos: [0, 0],
-  activityBar: {
-    hidden: false,
-  },
-  activityItems: [
-    { id: 'explorer', label: '资源管理器' },
-    { id: 'search', label: '搜索' },
-    { id: 'git', label: '源代码管理' },
-    { id: 'debug', label: '运行和调试' },
-    { id: 'extensions', label: '扩展' },
-    { id: 'user', label: '用户' },
-    { id: 'settings', label: '设置' },
-    { id: 'test', label: '测试' },
-  ],
-  panel: {
-    hidden: false,
-    current: 'output',
-    tabs: [
-      { id: 'output', label: '输出' },
-      { id: 'problems', label: '问题' },
-      { id: 'terminal', label: '终端' },
-      { id: 'debug-console', label: '调试控制台' },
-    ],
-  },
-  sidebar: {
-    hidden: false,
-    current: 'explorer',
-  },
-  auxiliaryBar: {
-    hidden: false,
-  },
-  menuBar: {
-    hidden: false,
-  },
-  statusBar: {
-    hidden: false,
-    text: '',
-  },
-};
-
 export const useLayoutStore = create<LayoutState>()(
-  immer((set) => ({
-    layout: defaultLayout,
+  immer((set, get) => ({
+    sidebarVisible: true,
+    sidebarWidth: 300,
+    panelVisible: true,
+    panelHeight: 200,
+    activityBarVisible: true,
+    statusBarVisible: true,
+    menuBarVisible: true,
+    isFullscreen: false,
 
-    setSplitPanePos: (pos: number[]) =>
+    toggleSidebar: () => {
+      console.warn('toggleSidebar is deprecated. Use configuration instead.');
+      const app = getGlobalApp();
+      const config = app.configuration;
+      
       set((state) => {
-        state.layout.splitPanePos = pos;
-      }),
+        state.sidebarVisible = !state.sidebarVisible;
+        config.set('ui.showSidebar', state.sidebarVisible);
+      });
+    },
 
-    setHorizontalSplitPanePos: (pos: number[]) =>
+    setSidebarWidth: (width: number) => {
       set((state) => {
-        state.layout.horizontalSplitPanePos = pos;
-      }),
+        state.sidebarWidth = Math.max(200, Math.min(800, width));
+      });
+    },
 
-    toggleActivityBar: () =>
+    togglePanel: () => {
+      console.warn('togglePanel is deprecated. Use configuration instead.');
+      const app = getGlobalApp();
+      const config = app.configuration;
+      
       set((state) => {
-        state.layout.activityBar.hidden = !state.layout.activityBar.hidden;
-      }),
+        state.panelVisible = !state.panelVisible;
+        config.set('ui.showPanel', state.panelVisible);
+      });
+    },
 
-    addActivityItem: (item) =>
+    setPanelHeight: (height: number) => {
       set((state) => {
-        const list = state.layout.activityItems || (state.layout.activityItems = []);
-        if (!list.find(i => i.id === item.id)) list.push(item);
-      }),
+        state.panelHeight = Math.max(100, Math.min(600, height));
+      });
+    },
 
-    removeActivityItem: (id) =>
+    toggleActivityBar: () => {
+      console.warn('toggleActivityBar is deprecated. Use configuration instead.');
+      const app = getGlobalApp();
+      const config = app.configuration;
+      
       set((state) => {
-        const list = state.layout.activityItems || [];
-        state.layout.activityItems = list.filter(i => i.id !== id);
-        if (state.layout.sidebar.current === id) {
-          state.layout.sidebar.current = 'explorer';
+        state.activityBarVisible = !state.activityBarVisible;
+        config.set('ui.showActivityBar', state.activityBarVisible);
+      });
+    },
+
+    toggleStatusBar: () => {
+      console.warn('toggleStatusBar is deprecated. Use configuration instead.');
+      const app = getGlobalApp();
+      const config = app.configuration;
+      
+      set((state) => {
+        state.statusBarVisible = !state.statusBarVisible;
+        config.set('ui.showStatusBar', state.statusBarVisible);
+      });
+    },
+
+    toggleMenuBar: () => {
+      console.warn('toggleMenuBar is deprecated. Use configuration instead.');
+      const app = getGlobalApp();
+      const config = app.configuration;
+      
+      set((state) => {
+        state.menuBarVisible = !state.menuBarVisible;
+        config.set('ui.showMenuBar', state.menuBarVisible);
+      });
+    },
+
+    toggleFullscreen: () => {
+      set((state) => {
+        state.isFullscreen = !state.isFullscreen;
+        
+        // Toggle fullscreen API
+        if (state.isFullscreen) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
         }
-      }),
+      });
+    },
 
-    togglePanel: () =>
+    resetLayout: () => {
       set((state) => {
-        state.layout.panel.hidden = !state.layout.panel.hidden;
-      }),
-
-    toggleSidebar: () =>
-      set((state) => {
-        state.layout.sidebar.hidden = !state.layout.sidebar.hidden;
-      }),
-
-    toggleAuxiliaryBar: () =>
-      set((state) => {
-        state.layout.auxiliaryBar.hidden = !state.layout.auxiliaryBar.hidden;
-      }),
-
-    toggleMenuBar: () =>
-      set((state) => {
-        state.layout.menuBar.hidden = !state.layout.menuBar.hidden;
-      }),
-
-    toggleStatusBar: () =>
-      set((state) => {
-        state.layout.statusBar.hidden = !state.layout.statusBar.hidden;
-      }),
-
-    setPanelCurrent: (current: UniqueId) =>
-      set((state) => {
-        state.layout.panel.current = current;
-      }),
-
-    setSidebarCurrent: (current: UniqueId) =>
-      set((state) => {
-        state.layout.sidebar.current = current;
-      }),
-
-    setAuxiliaryBarCurrent: (current: UniqueId) =>
-      set((state) => {
-        state.layout.auxiliaryBar.current = current;
-      }),
-
-    addPanelTab: (id: string, label: string) =>
-      set((state) => {
-        const tabs = state.layout.panel.tabs || (state.layout.panel.tabs = []);
-        if (!tabs.find(t => t.id === id)) {
-          tabs.push({ id, label });
-        }
-        state.layout.panel.current = id;
-        state.layout.panel.hidden = false;
-      }),
-
-    removePanelTab: (id: string) =>
-      set((state) => {
-        const tabs = state.layout.panel.tabs || [];
-        state.layout.panel.tabs = tabs.filter(t => t.id !== id);
-        if (state.layout.panel.current === id) {
-          state.layout.panel.current = state.layout.panel.tabs?.[0]?.id;
-        }
-      }),
-
-    setStatusText: (text: string) =>
-      set((state) => {
-        // @ts-ignore
-        state.layout.statusBar.text = text;
-      }),
-
-    resetLayout: () =>
-      set((state) => {
-        state.layout = { ...defaultLayout };
-      }),
+        state.sidebarVisible = true;
+        state.sidebarWidth = 300;
+        state.panelVisible = true;
+        state.panelHeight = 200;
+        state.activityBarVisible = true;
+        state.statusBarVisible = true;
+        state.menuBarVisible = true;
+        state.isFullscreen = false;
+      });
+    },
   }))
 );
