@@ -1,102 +1,85 @@
-import React from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react';
-import type { ITreeNode } from '@lgnixai/luckin-types';
+import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, Trash2, Pencil, FilePlus2, FolderPlus } from 'lucide-react';
 import { ContextMenu } from "@/components/context-menu";
-import { useEditorService } from '@lgnixai/luckin-core';
+import { useDocuments } from '@/stores/documents';
+import { useFileTree } from '@/stores/filetree';
+import { useEditorBridge } from '@/stores/editorBridge';
 
-export interface ExplorerProps {
-  className?: string;
-}
-
-type FileNode = ITreeNode<{ fileType: 'Folder' | 'File'; name: string }>;
+export interface ExplorerProps { className?: string; }
 
 interface TreeNodeProps {
-  node: FileNode;
+  id: string;
   level: number;
   expanded: boolean;
   onToggle: (nodeId: string) => void;
   onSelect: (nodeId: string) => void;
-  selectedId?: string;
+  selectedId?: string | null;
+  onContextMenu: (e: React.MouseEvent, id: string) => void;
+  onMove: (fromId: string, toFolderId: string) => void;
+  renamingId: string | null;
+  tempName: string;
+  setTempName: (name: string) => void;
+  commitRename: () => void;
+  beginRename: (id: string) => void;
 }
 
-const TreeNode: React.FC<TreeNodeProps> = ({ 
-  node, 
-  level, 
-  expanded, 
-  onToggle, 
-  onSelect, 
-  selectedId 
-}) => {
-  const isSelected = selectedId === node.key;
-  const isFolder = node.data?.fileType === 'Folder';
-  const hasChildren = !!(node.children && node.children.length > 0);
-  const name = node.data?.name ?? String(node.title);
+const TreeNode: React.FC<TreeNodeProps> = ({ id, level, expanded, onToggle, onSelect, selectedId, onContextMenu, onMove, renamingId, tempName, setTempName, commitRename, beginRename }) => {
+  const { nodesById, listChildren } = useFileTree();
+  const node = nodesById[id];
+  if (!node) return null;
+  const isSelected = selectedId === id;
+  const isFolder = node.type === 'folder';
+  const hasChildren = (node.children?.length || 0) > 0;
+  const name = node.name;
 
   const handleClick = () => {
-    if (isFolder) {
-      onToggle(node.key);
-    }
-    onSelect(node.key);
+    if (isFolder) onToggle(id);
+    onSelect(id);
   };
 
   return (
-    <div>
+    <div onContextMenu={(e) => onContextMenu(e, id)} draggable onDragStart={(e) => { e.dataTransfer.setData('text/tree-id', id); }} onDragOver={(e) => { if (isFolder) e.preventDefault(); }} onDrop={(e) => { if (!isFolder) return; const moving = e.dataTransfer.getData('text/tree-id'); if (moving && moving !== id) { onMove(moving, id); onSelect(id); onToggle(id); } }}>
       <div
         className={cn(
           "flex items-center py-1 px-2 cursor-pointer hover:bg-accent rounded-sm",
-          isSelected && "bg-accent",
-          level > 0 && "ml-4"
+          isSelected && "bg-accent"
         )}
         style={{ paddingLeft: `${level * 12 + 8}px` }}
         onClick={handleClick}
       >
-        {isFolder && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-4 h-4 p-0 mr-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(node.key);
-            }}
-          >
-            {expanded ? (
-              <ChevronDown className="w-3 h-3" />
-            ) : (
-              <ChevronRight className="w-3 h-3" />
-            )}
-          </Button>
-        )}
-        
-        {!isFolder && <div className="w-4 mr-1" />}
-        
         {isFolder ? (
-          expanded ? (
-            <FolderOpen className="w-4 h-4 mr-2 text-blue-500" />
-          ) : (
-            <Folder className="w-4 h-4 mr-2 text-blue-500" />
-          )
+          <Button variant="ghost" size="icon" className="w-4 h-4 p-0 mr-1" onClick={(e) => { e.stopPropagation(); onToggle(id); }}>
+            {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          </Button>
+        ) : (
+          <div className="w-4 mr-1" />
+        )}
+        {isFolder ? (
+          expanded ? <FolderOpen className="w-4 h-4 mr-2 text-blue-500" /> : <Folder className="w-4 h-4 mr-2 text-blue-500" />
         ) : (
           <File className="w-4 h-4 mr-2 text-gray-500" />
         )}
-        
-        <span className="text-sm truncate">{name}</span>
+        {renamingId === id ? (
+          <input
+            className="flex-1 text-sm bg-transparent border rounded px-1 py-0.5 outline-none"
+            value={tempName}
+            onChange={(e) => setTempName(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') beginRename(''); }}
+            autoFocus
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className="text-sm truncate">{name}</span>
+        )}
       </div>
-      
       {isFolder && expanded && hasChildren && (
         <div>
-          {node.children!.map((child: FileNode) => (
-            <TreeNode
-              key={child.key}
-              node={child}
-              level={level + 1}
-              expanded={false}
-              onToggle={onToggle}
-              onSelect={onSelect}
-              selectedId={selectedId}
-            />
+          {(listChildren(id)).map((child) => (
+            <TreeNode key={child.id} id={child.id} level={level + 1} expanded={false} onToggle={onToggle} onSelect={onSelect} selectedId={selectedId} onContextMenu={onContextMenu} onMove={onMove} renamingId={renamingId} tempName={tempName} setTempName={setTempName} commitRename={commitRename} beginRename={beginRename} />
           ))}
         </div>
       )}
@@ -105,179 +88,82 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 };
 
 export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
-  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set());
-  const [selectedNode, setSelectedNode] = React.useState<string>();
-  const [menuPos, setMenuPos] = React.useState<{x: number; y: number} | null>(null);
-  const [menuItems, setMenuItems] = React.useState<{
-    id: string; label: string; command?: string; onClick?: () => void
-  }[]>([]);
-  const { openFile } = useEditorService();
+  const { rootId, listChildren, createFile, createFolder, renameNode, deleteNode, moveNode, nodesById, selectedId, setSelectedId, setCurrentFolderId, getPath, linkDocument } = useFileTree();
+  const { createDocument } = useDocuments();
+  const { openDocument } = useEditorBridge();
 
-  // Mock data for now
-  const mockData: FileNode[] = [
-    {
-      key: '1',
-      title: 'src',
-      data: { fileType: 'Folder', name: 'src' },
-      children: [
-        {
-          key: '2',
-          title: 'components',
-          data: { fileType: 'Folder', name: 'components' },
-          children: [
-            {
-              key: '3',
-              title: 'Button.tsx',
-              data: { fileType: 'File', name: 'Button.tsx' },
-            },
-            {
-              key: '4',
-              title: 'Input.tsx',
-              data: { fileType: 'File', name: 'Input.tsx' },
-            },
-          ],
-        },
-        {
-          key: '5',
-          title: 'App.tsx',
-          data: { fileType: 'File', name: 'App.tsx' },
-        },
-      ],
-    },
-    {
-      key: '6',
-      title: 'package.json',
-      data: { fileType: 'File', name: 'package.json' },
-    },
-  ];
+  const [expanded, setExpanded] = useState<Set<string>>(new Set([rootId]));
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const [menuItems, setMenuItems] = useState<{ id: string; label: string; onClick?: () => void }[]>([]);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [tempName, setTempName] = useState<string>('');
 
-  const handleToggle = (nodeId: string) => {
-    setExpandedNodes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(nodeId)) {
-        newSet.delete(nodeId);
-      } else {
-        newSet.add(nodeId);
-      }
-      return newSet;
-    });
+  const toggle = (id: string) => setExpanded((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const select = (id: string) => { setSelectedId(id); const n = nodesById[id]; if (n?.type === 'folder') setCurrentFolderId(id); if (n?.type === 'file' && n.documentId) openDocument(n.documentId, n.name, getPath(id)); };
+
+  const ensureOpen = useCallback((id: string) => { if (!expanded.has(id)) setExpanded(new Set([...expanded, id])); }, [expanded]);
+
+  const onOpenFile = (id: string) => {
+    const node = nodesById[id];
+    if (!node || node.type !== 'file') return;
+    if (node.documentId) { openDocument(node.documentId, node.name, getPath(id)); return; }
+    const lang = (() => { const ext = node.name.split('.').pop()?.toLowerCase(); if (ext === 'ts' || ext === 'tsx') return 'typescript'; if (ext === 'js' || ext === 'jsx') return 'javascript'; if (ext === 'json') return 'json'; if (ext === 'md') return 'markdown'; return 'plaintext'; })();
+    const docId = createDocument(node.name, { content: '', language: lang, path: getPath(id) });
+    linkDocument(id, docId);
+    openDocument(docId, node.name, getPath(id));
   };
 
-  const findNodeById = (nodes: FileNode[], id: string): FileNode | undefined => {
-    for (const n of nodes) {
-      if (n.key === id) return n;
-      if (n.children) {
-        const found = findNodeById(n.children as FileNode[], id);
-        if (found) return found;
-      }
-    }
-    return undefined;
-  };
+  const beginRename = (id: string) => { setRenamingId(id); setTempName(id ? (nodesById[id]?.name ?? '') : ''); };
+  const commitRename = () => { if (!renamingId) return; renameNode(renamingId, tempName.trim() || nodesById[renamingId].name); setRenamingId(null); };
 
-  const guessLanguage = (name: string): string => {
-    const ext = name.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'ts':
-      case 'tsx':
-        return 'typescript';
-      case 'js':
-      case 'jsx':
-        return 'javascript';
-      case 'json':
-        return 'json';
-      case 'md':
-        return 'markdown';
-      default:
-        return 'plaintext';
-    }
-  };
+  const createFileHere = (parentId: string) => { const fileId = createFile(parentId); ensureOpen(parentId); setRenamingId(fileId); setTempName(nodesById[fileId]?.name ?? '未命名.md'); };
+  const createFolderHere = (parentId: string) => { const folderId = createFolder(parentId); ensureOpen(parentId); setRenamingId(folderId); setTempName(nodesById[folderId]?.name ?? '新建文件夹'); };
 
-  const defaultContentFor = (name: string): string => {
-    if (name.endsWith('package.json')) {
-      return '{\n  "name": "example",\n  "version": "1.0.0"\n}';
-    }
-    if (name.endsWith('.tsx') || name.endsWith('.ts')) {
-      return `export default function ${name.replace(/\W/g, '')}(){\n  return <div>${name}</div>;\n}`;
-    }
-    return `// ${name}`;
-  };
-
-  const handleSelect = async (nodeId: string) => {
-    setSelectedNode(nodeId);
-    const node = findNodeById(mockData, nodeId);
-    if (node && node.data?.fileType === 'File') {
-      const name = node.data?.name ?? String(node.title);
-      const lang = guessLanguage(name);
-      let content = defaultContentFor(name);
-      try {
-        if (name === 'package.json') {
-          const res = await fetch('/package.json');
-          if (res.ok) {
-            content = await res.text();
-          }
-        }
-      } catch {}
-      openFile(name, content, lang);
-    }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const onContext = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    const items = [
-      { id: 'open', label: '打开', command: 'file.open' },
-      { id: 'reveal', label: '在资源管理器中显示', command: 'file.reveal' },
-      { id: 'rename', label: '重命名', command: 'file.rename' },
-      { id: 'delete', label: '删除', command: 'file.delete' },
-    ];
+    const node = nodesById[id];
+    const items: { id: string; label: string; onClick?: () => void }[] = [];
+    if (!node) return;
+    if (node.type === 'folder') {
+      items.push({ id: 'new-file', label: '新建文件', onClick: () => createFileHere(id) });
+      items.push({ id: 'new-folder', label: '新建文件夹', onClick: () => createFolderHere(id) });
+    } else {
+      items.push({ id: 'open', label: '打开', onClick: () => onOpenFile(id) });
+    }
+    items.push({ id: 'rename', label: '重命名', onClick: () => beginRename(id) });
+    items.push({ id: 'delete', label: '删除', onClick: () => deleteNode(id) });
     setMenuItems(items);
     setMenuPos({ x: e.clientX, y: e.clientY });
+    setSelectedId(id);
   };
 
   const closeMenu = () => setMenuPos(null);
 
-  return (
-    <div className={cn("flex flex-col h-full", className)} onContextMenu={handleContextMenu}>
-      <div className="p-2 border-b">
-        <div className="flex items-center gap-2 text-sm">
-          <button className="px-2 py-0.5 rounded border bg-background">资源</button>
-          <button className="px-2 py-0.5 rounded border bg-background">编辑器</button>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-auto p-2">
-        {/* 打开的编辑器 */}
-        <div className="mb-2">
-          <div className="flex items-center text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-            <span className="mr-1">&gt;</span>
-            <span>打开的编辑器</span>
-          </div>
-        </div>
-        
-        {/* NO OPEN FOLDER */}
-        <div className="mb-2">
-          <div className="flex items-center text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-            <span className="mr-1">&gt;</span>
-            <span>NO OPEN FOLDER</span>
-          </div>
-        </div>
-        
-        {/* 原有的文件树 */}
-        {mockData.map((node) => (
-          <TreeNode
-            key={node.key}
-            node={node}
-            level={0}
-            expanded={expandedNodes.has(node.key)}
-            onToggle={handleToggle}
-            onSelect={handleSelect}
-            selectedId={selectedNode}
-          />
-        ))}
+  const moveFromDrag = (fromId: string, toFolderId: string) => { if (fromId && toFolderId && fromId !== toFolderId) moveNode(fromId, toFolderId); };
 
+  const tree = useMemo(() => listChildren(rootId), [listChildren, rootId, nodesById]);
+
+  return (
+    <div className={cn("flex flex-col h-full", className)}>
+      <div className="p-2 border-b flex items-center justify-between">
+        <div className="text-xs text-muted-foreground">资源管理器</div>
+        <div className="flex items-center gap-1">
+          <button className="p-1 hover:bg-accent rounded" title="新建文件" onClick={() => createFileHere(selectedId && nodesById[selectedId]?.type === 'folder' ? selectedId : rootId)}>
+            <FilePlus2 className="w-4 h-4" />
+          </button>
+          <button className="p-1 hover:bg-accent rounded" title="新建文件夹" onClick={() => createFolderHere(selectedId && nodesById[selectedId]?.type === 'folder' ? selectedId : rootId)}>
+            <FolderPlus className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-      {menuPos && (
-        <ContextMenu items={menuItems} onClose={closeMenu} position={menuPos} />)
-      }
+      <div className="flex-1 overflow-auto p-2" onContextMenu={(e) => { e.preventDefault(); setMenuItems([{ id: 'new-file', label: '新建文件', onClick: () => createFileHere(rootId) }, { id: 'new-folder', label: '新建文件夹', onClick: () => createFolderHere(rootId) }]); setMenuPos({ x: e.clientX, y: e.clientY }); }}>
+        {(tree).map((child) => (
+          <div key={child.id} onDoubleClick={() => (child.type === 'file' ? onOpenFile(child.id) : toggle(child.id))}>
+            <TreeNode id={child.id} level={0} expanded={expanded.has(child.id)} onToggle={toggle} onSelect={select} selectedId={selectedId ?? null} onContextMenu={onContext} onMove={moveFromDrag} renamingId={renamingId} tempName={tempName} setTempName={setTempName} commitRename={commitRename} beginRename={beginRename} />
+          </div>
+        ))}
+      </div>
+      {menuPos && (<ContextMenu items={menuItems} onClose={closeMenu} position={menuPos} />)}
     </div>
   );
 };

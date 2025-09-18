@@ -490,7 +490,7 @@ const TabBar: React.FC<TabBarProps> = ({
       .filter((tab): tab is Tab => !!tab);
     
     return (
-      <div className="flex items-center bg-panel border-b border-border">
+      <div className="flex items-center bg-panel border-b border-border w-full flex-shrink-0">
         {/* Navigation controls */}
         <div className="flex items-center px-2 border-r border-border">
           <button className="p-1 hover:bg-nav-hover rounded" onClick={handleBack}>
@@ -581,7 +581,7 @@ const TabBar: React.FC<TabBarProps> = ({
   }
 
   return (
-    <div className="flex items-center bg-panel border-b border-border">
+    <div className="flex items-center bg-panel border-b border-border w-full flex-shrink-0">
       {/* Navigation controls */}
       <div className="flex items-center px-2 border-r border-border">
         <button className="p-1 hover:bg-nav-hover rounded" onClick={handleBack}>
