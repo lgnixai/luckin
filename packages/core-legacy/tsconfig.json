@@ -6,7 +6,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "incremental": false,
+    "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["src/**/*", "src/types/index.ts", "src/stores/index.ts", "src/services/index.ts", "src/hooks/index.ts"],

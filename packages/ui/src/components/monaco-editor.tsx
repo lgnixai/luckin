@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Editor } from '@monaco-editor/react';
 import { cn } from "@/lib/utils";
-import type { IEditorTab } from '@lgnixai/luckin-core-legacy';
+import type { IEditorTab } from '@lgnixai/luckin-core';
 
 export interface MonacoEditorProps {
   tab: IEditorTab;

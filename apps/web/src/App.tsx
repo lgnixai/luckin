@@ -1,6 +1,6 @@
 import { LuckinProvider, Workbench, CommandPalette } from '@lgnixai/luckin-ui';
 import { useEffect } from 'react';
-import { useCommandService } from '@lgnixai/luckin-core-legacy';
+import { useCommandService } from '@lgnixai/luckin-core';
 import type { ILuckinConfig } from '@lgnixai/luckin-core';
 import './index.css';
 

@@ -1,6 +1,6 @@
-import { EditorState, Tab, EditorPane, StateError } from "@/types/obsidian-editor';
-import { storageManager } from "@/components/storage-manager";
-import { generateId, createDefaultTab, createDefaultPane, createDefaultSettings } from "@/components/obsidian-editor-utils";
+import { EditorState, Tab, EditorPane, StateError as EditorStateError } from '@/types/obsidian-editor';
+import { storageManager } from '@/utils/storage-manager';
+import { generateId, createDefaultTab, createDefaultPane, createDefaultSettings } from '@/utils/obsidian-editor-utils';
 
 /**
  * 会话恢复服务
@@ -16,10 +16,10 @@ export class SessionRecoveryService {
   async recoverSession(): Promise<{
     state: Partial<EditorState>;
     recovered: boolean;
-    errors: StateError[];
+    errors: EditorStateError[];
     warnings: string[];
   }> {
-    const errors: StateError[] = [];
+    const errors: EditorStateError[] = [];
     const warnings: string[] = [];
     let recovered = false;
     let state: Partial<EditorState> = {};
@@ -52,8 +52,8 @@ export class SessionRecoveryService {
       }
     } catch (error) {
       console.error('Session recovery failed:', error);
-      errors.push(error instanceof StateError ? error : 
-        new StateError('corruption', 'Failed to load session data', true));
+      errors.push(error instanceof EditorStateError ? error : 
+        new EditorStateError('corruption', 'Failed to load session data', true));
     }
 
     // 如果主恢复失败，尝试其他恢复策略
@@ -83,10 +83,10 @@ export class SessionRecoveryService {
   private async validateAndRepairSession(sessionState: Partial<EditorState>): Promise<{
     isValid: boolean;
     state: Partial<EditorState>;
-    errors: StateError[];
+    errors: EditorStateError[];
     warnings: string[];
   }> {
-    const errors: StateError[] = [];
+    const errors: EditorStateError[] = [];
     const warnings: string[] = [];
     const repairedState: Partial<EditorState> = { ...sessionState };
 
@@ -382,7 +382,7 @@ export class SessionRecoveryService {
         return { recovered: true, state, warnings, errors };
       }
     } catch (error) {
-      errors.push(new StateError('storage', 'Fallback recovery failed', false));
+      errors.push(new EditorStateError('storage', 'Fallback recovery failed', false));
     }
 
     return { recovered: false, state: {}, warnings, errors };

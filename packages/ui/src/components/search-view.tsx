@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/checkbox";
-import { useSearchService } from '@lgnixai/luckin-core-legacy';
+import { useSearchService } from '@lgnixai/luckin-core';
 
 export interface SearchViewProps {
   className?: string;
@@ -66,7 +66,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ className }) => {
       <div className="text-xs text-muted-foreground">{results.length} 个结果</div>
 
       <div className="space-y-2 overflow-auto max-h-[60vh]">
-        {results.map((r) => (
+        {results.map((r: any) => (
           <div key={r.id} className="p-2 rounded border hover:bg-accent">
             <div className="text-sm">{r.filePath}:{r.line}:{r.column}</div>
             <div className="text-xs text-muted-foreground truncate">{r.preview}</div>

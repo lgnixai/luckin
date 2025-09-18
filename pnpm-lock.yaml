@@ -161,6 +161,12 @@ importers:
       '@lgnixai/luckin-types':
         specifier: workspace:*
         version: link:../types
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      tailwind-merge:
+        specifier: ^2.2.2
+        version: 2.6.0
     devDependencies:
       tsup:
         specifier: ^8.0.0
@@ -229,6 +235,9 @@ importers:
       '@lgnixai/luckin-core-legacy':
         specifier: workspace:*
         version: link:../core-legacy
+      '@lgnixai/luckin-shared':
+        specifier: workspace:*
+        version: link:../shared
       '@lgnixai/luckin-types':
         specifier: workspace:*
         version: link:../types

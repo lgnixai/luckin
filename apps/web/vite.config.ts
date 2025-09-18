@@ -23,10 +23,7 @@ export default defineConfig({
         find: '@lgnixai/luckin-ui',
         replacement: path.resolve(__dirname, '../../packages/ui/src'),
       },
-      {
-        find: '@lgnixai/luckin-core-legacy',
-        replacement: path.resolve(__dirname, '../../packages/core-legacy/src'),
-      },
+      // legacy alias no longer needed after compat migration
     ],
   },
   server: {

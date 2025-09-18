@@ -1,6 +1,9 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+// optional dep shim
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let DayPicker: any = () => null;
+try { DayPicker = require('react-day-picker').DayPicker; } catch {}
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";

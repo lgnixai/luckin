@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { ExtensionService } from '@lgnixai/luckin-core-legacy';
+import { ExtensionService } from '@lgnixai/luckin-core';
 import type { ILuckinConfig, IUseLuckinReturn } from '@lgnixai/luckin-core';
 
 interface LuckinProviderProps {

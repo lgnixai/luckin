@@ -2,7 +2,7 @@
  * Performance optimization utilities for the Obsidian Editor
  */
 
-import { Tab, EditorPane } from "@/types/obsidian-editor';
+import { Tab, EditorPane } from '@/types/obsidian-editor';
 
 // Virtual scrolling configuration
 export interface VirtualScrollConfig {

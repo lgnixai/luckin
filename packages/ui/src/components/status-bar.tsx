@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { GitBranch, CheckCircle, Bell, Sun, Moon, Sparkles } from 'lucide-react';
-import { useLayoutStore, useThemeService } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore, useThemeService } from '@lgnixai/luckin-core';
 
 export interface StatusBarProps {
   className?: string;

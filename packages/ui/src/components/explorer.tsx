@@ -1,17 +1,19 @@
 import React from 'react';
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react';
 import type { ITreeNode } from '@lgnixai/luckin-types';
 import { ContextMenu } from "@/components/context-menu";
-import { useEditorService } from '@lgnixai/luckin-core-legacy';
+import { useEditorService } from '@lgnixai/luckin-core';
 
 export interface ExplorerProps {
   className?: string;
 }
 
+type FileNode = ITreeNode<{ fileType: 'Folder' | 'File'; name: string }>;
+
 interface TreeNodeProps {
-  node: ITreeNode;
+  node: FileNode;
   level: number;
   expanded: boolean;
   onToggle: (nodeId: string) => void;
@@ -27,15 +29,16 @@ const TreeNode: React.FC<TreeNodeProps> = ({
   onSelect, 
   selectedId 
 }) => {
-  const isSelected = selectedId === node.id;
-  const isFolder = node.fileType === 'Folder';
-  const hasChildren = node.children && node.children.length > 0;
+  const isSelected = selectedId === node.key;
+  const isFolder = node.data?.fileType === 'Folder';
+  const hasChildren = !!(node.children && node.children.length > 0);
+  const name = node.data?.name ?? String(node.title);
 
   const handleClick = () => {
     if (isFolder) {
-      onToggle(node.id.toString());
+      onToggle(node.key);
     }
-    onSelect(node.id.toString());
+    onSelect(node.key);
   };
 
   return (
@@ -56,7 +59,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
             className="w-4 h-4 p-0 mr-1"
             onClick={(e) => {
               e.stopPropagation();
-              onToggle(node.id.toString());
+              onToggle(node.key);
             }}
           >
             {expanded ? (
@@ -79,17 +82,17 @@ const TreeNode: React.FC<TreeNodeProps> = ({
           <File className="w-4 h-4 mr-2 text-gray-500" />
         )}
         
-        <span className="text-sm truncate">{node.name}</span>
+        <span className="text-sm truncate">{name}</span>
       </div>
       
       {isFolder && expanded && hasChildren && (
         <div>
-          {node.children!.map((child: any) => (
+          {node.children!.map((child: FileNode) => (
             <TreeNode
-              key={child.id}
+              key={child.key}
               node={child}
               level={level + 1}
-              expanded={false} // This should be managed by parent state
+              expanded={false}
               onToggle={onToggle}
               onSelect={onSelect}
               selectedId={selectedId}
@@ -111,40 +114,40 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
   const { openFile } = useEditorService();
 
   // Mock data for now
-  const mockData: ITreeNode[] = [
+  const mockData: FileNode[] = [
     {
-      id: '1',
-      name: 'src',
-      fileType: 'Folder',
+      key: '1',
+      title: 'src',
+      data: { fileType: 'Folder', name: 'src' },
       children: [
         {
-          id: '2',
-          name: 'components',
-          fileType: 'Folder',
+          key: '2',
+          title: 'components',
+          data: { fileType: 'Folder', name: 'components' },
           children: [
             {
-              id: '3',
-              name: 'Button.tsx',
-              fileType: 'File',
+              key: '3',
+              title: 'Button.tsx',
+              data: { fileType: 'File', name: 'Button.tsx' },
             },
             {
-              id: '4',
-              name: 'Input.tsx',
-              fileType: 'File',
+              key: '4',
+              title: 'Input.tsx',
+              data: { fileType: 'File', name: 'Input.tsx' },
             },
           ],
         },
         {
-          id: '5',
-          name: 'App.tsx',
-          fileType: 'File',
+          key: '5',
+          title: 'App.tsx',
+          data: { fileType: 'File', name: 'App.tsx' },
         },
       ],
     },
     {
-      id: '6',
-      name: 'package.json',
-      fileType: 'File',
+      key: '6',
+      title: 'package.json',
+      data: { fileType: 'File', name: 'package.json' },
     },
   ];
 
@@ -160,11 +163,11 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
     });
   };
 
-  const findNodeById = (nodes: ITreeNode[], id: string): ITreeNode | undefined => {
+  const findNodeById = (nodes: FileNode[], id: string): FileNode | undefined => {
     for (const n of nodes) {
-      if (n.id.toString() === id) return n;
+      if (n.key === id) return n;
       if (n.children) {
-        const found = findNodeById(n.children as ITreeNode[], id);
+        const found = findNodeById(n.children as FileNode[], id);
         if (found) return found;
       }
     }
@@ -202,18 +205,19 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
   const handleSelect = async (nodeId: string) => {
     setSelectedNode(nodeId);
     const node = findNodeById(mockData, nodeId);
-    if (node && node.fileType === 'File') {
-      const lang = guessLanguage(node.name);
-      let content = defaultContentFor(node.name);
+    if (node && node.data?.fileType === 'File') {
+      const name = node.data?.name ?? String(node.title);
+      const lang = guessLanguage(name);
+      let content = defaultContentFor(name);
       try {
-        if (node.name === 'package.json') {
+        if (name === 'package.json') {
           const res = await fetch('/package.json');
           if (res.ok) {
             content = await res.text();
           }
         }
       } catch {}
-      openFile(node.name, content, lang);
+      openFile(name, content, lang);
     }
   };
 
@@ -260,10 +264,10 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
         {/* 原有的文件树 */}
         {mockData.map((node) => (
           <TreeNode
-            key={node.id}
+            key={node.key}
             node={node}
             level={0}
-            expanded={expandedNodes.has(node.id.toString())}
+            expanded={expandedNodes.has(node.key)}
             onToggle={handleToggle}
             onSelect={handleSelect}
             selectedId={selectedNode}

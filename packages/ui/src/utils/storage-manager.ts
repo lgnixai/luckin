@@ -1,4 +1,4 @@
-import { EditorState, SessionData, Tab, EditorPane, StateError } from "@/types/obsidian-editor';
+import { EditorState, SessionData, Tab, EditorPane, StateError as EditorStateError } from '@/types/obsidian-editor';
 
 /**
  * 本地存储管理器
@@ -37,7 +37,7 @@ export class StorageManager {
       console.log('Session saved successfully');
     } catch (error) {
       console.error('Failed to save session:', error);
-      throw new StateError('storage', 'Failed to save session state', false);
+      throw new EditorStateError('storage', 'Failed to save session state', false);
     }
   }
 
@@ -58,7 +58,7 @@ export class StorageManager {
         console.warn('Session version incompatible, attempting migration');
         const migrated = await this.migrateSession(parsed);
         if (!migrated) {
-          throw new StateError('version', 'Session version incompatible and migration failed', false);
+          throw new EditorStateError('version', 'Session version incompatible and migration failed', false);
         }
         return migrated;
       }
@@ -83,7 +83,7 @@ export class StorageManager {
         return backup;
       }
       
-      throw new StateError('corruption', 'Session data corrupted and no backup available', false);
+      throw new EditorStateError('corruption', 'Session data corrupted and no backup available', false);
     }
   }
 

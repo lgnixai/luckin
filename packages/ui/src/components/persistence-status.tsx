@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { usePersistence, useAutoSaveStatus } from "@/hooks/usePersistence';
-import { StateError } from "@/types/obsidian-editor';
+import { usePersistence, useAutoSaveStatus } from '@/hooks/usePersistence';
+import { StateError } from '@/types/obsidian-editor';
 
 interface PersistenceStatusProps {
   className?: string;

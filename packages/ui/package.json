@@ -70,6 +70,7 @@
     "monaco-editor": "^0.53.0",
     "react-resizable-panels": "^3.0.6",
     "tailwind-merge": "^2.0.0",
+    "@lgnixai/luckin-shared": "workspace:*",
     "tailwindcss-animate": "^1.0.7",
     "zustand": "^4.4.7",
     "immer": "^10.0.3"

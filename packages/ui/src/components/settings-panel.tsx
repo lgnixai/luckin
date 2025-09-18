@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { useLayoutStore, useThemeService } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore, useThemeService } from '@lgnixai/luckin-core';
 import { Checkbox } from "@/components/checkbox";
 
 export interface SettingsPanelProps {

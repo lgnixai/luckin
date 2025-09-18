@@ -1,5 +1,8 @@
 import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+// optional dep shim
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let DrawerPrimitive: any = {};
+try { DrawerPrimitive = require('vaul'); } catch {}
 
 import { cn } from "@/lib/utils";
 

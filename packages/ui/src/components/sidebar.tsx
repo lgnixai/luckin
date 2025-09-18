@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core';
 import { Explorer } from "@/components/explorer";
 import { TestPane } from "@/components/test-pane";
 import { SearchView } from "@/components/search-view";

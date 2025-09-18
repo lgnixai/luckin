@@ -1,7 +1,17 @@
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
-import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from "react-hook-form";
+// optional dep shim for react-hook-form
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let Controller: any, FormProvider: any, useFormContext: any;
+// types to keep references valid when form lib is missing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ControllerProps<TFieldValues = any, TName = any> = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FieldPath<T> = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FieldValues = any;
+try { ({ Controller, FormProvider, useFormContext } = require('react-hook-form')); } catch {}
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";

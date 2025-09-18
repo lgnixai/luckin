@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCommandService } from '@lgnixai/luckin-core-legacy';
+import { useCommandService } from '@lgnixai/luckin-core';
 import { cn } from "@/lib/utils";
 
 export interface CommandPaletteProps { className?: string }

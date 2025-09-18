@@ -1,4 +1,4 @@
-import { DragPosition } from "@/types/obsidian-editor';
+import { DragPosition } from '@/types/obsidian-editor';
 
 export interface DragDropState {
   isDragging: boolean;

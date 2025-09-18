@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronUp, X } from 'lucide-react';
 // 移除底部的“辅助栏”标签，将辅助栏回归右侧分栏
@@ -14,7 +14,7 @@ export const Panel: React.FC<PanelProps> = ({ className }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
   const panels = useMemo(() => {
-    const builtins = layout.panel.tabs || [{ id: 'output', label: '输出' }];
+    const builtins = (layout.panel.tabs as any[]) || [{ id: 'output', label: '输出' }];
     return builtins;
   }, [layout.panel.tabs]);
 
@@ -144,7 +144,7 @@ export const Panel: React.FC<PanelProps> = ({ className }) => {
         </div>
         
         {/* 面板内容 */}
-        {panels.map((panel) => (
+        {panels.map((panel: any) => (
           <TabsContent
             key={panel.id}
             value={panel.id}

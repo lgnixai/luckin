@@ -9,14 +9,14 @@ import { Layout, Save } from 'lucide-react';
 import { useFileTree } from '@/stores/filetree';
 import useShortcuts from '@/hooks/useShortcuts';
 
-import type { PanelNode } from '@lgnixai/luckin-core-legacy';
+import type { PanelNode } from '@lgnixai/luckin-core';
 import {
   findNodeById as findNodeByIdCore,
   findFirstLeaf as findFirstLeafCore,
   updateTabsForPanel,
   splitPanelImmutable,
   removePanelNodeImmutable,
-} from '@lgnixai/luckin-core-legacy';
+} from '@lgnixai/luckin-core';
 
 // interface FileNode {
 //   id: string;
@@ -52,7 +52,7 @@ const ObsidianLayout: React.FC = () => {
   const [lastActivePanelId, setLastActivePanelId] = useState<string>('left');
 
   // Workspace management handlers
-  const handleLoadWorkspaceLayout = useCallback((layout: any) => {
+  const handleLoadWorkspaceLayout = useCallback((layout: { panelTree: PanelNode }) => {
     setPanelTree(layout.panelTree);
     setShowWorkspaceManager(false);
   }, []);
@@ -73,7 +73,7 @@ const ObsidianLayout: React.FC = () => {
       }
       if (node.children) node.children.forEach(attachDocs);
     };
-    setPanelTree(prev => {
+    setPanelTree((prev: PanelNode) => {
       const clone = JSON.parse(JSON.stringify(prev)) as PanelNode;
       attachDocs(clone);
       return clone;
@@ -85,13 +85,13 @@ const ObsidianLayout: React.FC = () => {
   }, []);
 
   const updatePanelTabs = useCallback((panelId: string, newTabs: TabType[]) => {
-    setPanelTree(prevTree => updateTabsForPanel(prevTree, panelId, newTabs as any));
+    setPanelTree((prevTree: PanelNode) => updateTabsForPanel(prevTree, panelId, newTabs as any));
   }, []);
 
   // 历史栈：记录每个叶子面板的激活序列
   const [historyByPanelId, setHistoryByPanelId] = useState<Record<string, { stack: string[]; index: number }>>({});
   const pushHistory = useCallback((panelId: string, tabId: string) => {
-    setHistoryByPanelId(prev => {
+    setHistoryByPanelId((prev: Record<string, { stack: string[]; index: number }>) => {
       const h = prev[panelId] ?? { stack: [], index: -1 };
       const newStack = h.stack.slice(0, h.index + 1);
       if (newStack[newStack.length - 1] !== tabId) newStack.push(tabId);
@@ -99,28 +99,28 @@ const ObsidianLayout: React.FC = () => {
     });
   }, []);
   const goBack = useCallback((panelId: string) => {
-    setHistoryByPanelId(prev => {
+    setHistoryByPanelId((prev: Record<string, { stack: string[]; index: number }>) => {
       const h = prev[panelId];
       if (!h || h.index <= 0) return prev;
       const next = { ...prev, [panelId]: { ...h, index: h.index - 1 } };
       const targetTabId = next[panelId].stack[next[panelId].index];
       const panel = findPanelById(panelTree, panelId);
       if (panel?.tabs) {
-        const newTabs = panel.tabs.map(t => ({ ...t, isActive: t.id === targetTabId }));
+        const newTabs = panel.tabs.map((t: any) => ({ ...t, isActive: t.id === targetTabId }));
         updatePanelTabs(panelId, newTabs);
       }
       return next;
     });
   }, [findPanelById, panelTree, updatePanelTabs]);
   const goForward = useCallback((panelId: string) => {
-    setHistoryByPanelId(prev => {
+    setHistoryByPanelId((prev: Record<string, { stack: string[]; index: number }>) => {
       const h = prev[panelId];
       if (!h || h.index >= h.stack.length - 1) return prev;
       const next = { ...prev, [panelId]: { ...h, index: h.index + 1 } };
       const targetTabId = next[panelId].stack[next[panelId].index];
       const panel = findPanelById(panelTree, panelId);
       if (panel?.tabs) {
-        const newTabs = panel.tabs.map(t => ({ ...t, isActive: t.id === targetTabId }));
+        const newTabs = panel.tabs.map((t: any) => ({ ...t, isActive: t.id === targetTabId }));
         updatePanelTabs(panelId, newTabs);
       }
       return next;
@@ -131,7 +131,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const newTabs = panel.tabs.map(tab => 
+    const newTabs = panel.tabs.map((tab: any) => 
       tab.id === id ? { ...tab, isLocked: !tab.isLocked } : tab
     );
     updatePanelTabs(panelId, newTabs);
@@ -141,7 +141,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const targetTab = panel.tabs.find(tab => tab.id === id);
+    const targetTab = panel.tabs.find((tab: any) => tab.id === id);
     if (targetTab) {
       // 如果有documentId，创建新文档副本
       const newDocumentId = targetTab.documentId 
@@ -164,7 +164,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const newTabs = panel.tabs.map(tab => {
+    const newTabs = panel.tabs.map((tab: any) => {
       if (tab.id === id) {
         if (tab.documentId) renameDocument(tab.documentId, newTitle);
         return { ...tab, title: newTitle };
@@ -178,7 +178,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const targetTab = panel.tabs.find(tab => tab.id === id);
+    const targetTab = panel.tabs.find((tab: any) => tab.id === id);
     if (targetTab) {
       const pathToCopy = targetTab.filePath || `/${targetTab.title}`;
       navigator.clipboard.writeText(pathToCopy).then(() => {
@@ -198,7 +198,7 @@ const ObsidianLayout: React.FC = () => {
   }, []);
 
   const openDocumentInTargetPanel = useCallback((docId: string, title: string, filePath?: string) => {
-    setPanelTree(prev => {
+    setPanelTree((prev: PanelNode) => {
       const getTargetPanelId = (): string => {
         const p = findPanelById(prev, lastActivePanelId);
         if (p && p.type === 'leaf' && p.tabs) return lastActivePanelId;
@@ -214,7 +214,7 @@ const ObsidianLayout: React.FC = () => {
         documentId: docId,
         filePath
       };
-      const newTabs = targetPanel.tabs.map(t => ({ ...t, isActive: false }));
+      const newTabs = targetPanel.tabs.map((t: any) => ({ ...t, isActive: false }));
       newTabs.push(newTab);
       const updateNode = (node: PanelNode): PanelNode => {
         if (node.id === targetId && node.type === 'leaf') {
@@ -261,7 +261,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const newTabs = panel.tabs.filter(tab => tab.id !== id);
+    const newTabs = panel.tabs.filter((tab: any) => tab.id !== id);
     
     if (newTabs.length === 0) {
       // 如果是根面板或唯一面板，保留一个新标签
@@ -276,7 +276,7 @@ const ObsidianLayout: React.FC = () => {
         removePanelNode(panelId);
       }
     } else {
-      const closedTab = panel.tabs.find(tab => tab.id === id);
+      const closedTab = panel.tabs.find((tab: any) => tab.id === id);
       if (closedTab?.isActive && newTabs.length > 0) {
         newTabs[0].isActive = true;
       }
@@ -288,7 +288,7 @@ const ObsidianLayout: React.FC = () => {
     const panel = findPanelById(panelTree, panelId);
     if (!panel?.tabs) return;
 
-    const newTabs = panel.tabs.map(tab => ({ ...tab, isActive: tab.id === id }));
+    const newTabs = panel.tabs.map((tab: any) => ({ ...tab, isActive: tab.id === id }));
     updatePanelTabs(panelId, newTabs);
     pushHistory(panelId, id);
     setLastActivePanelId(panelId);

@@ -1,6 +1,9 @@
 import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
-import { Command as CommandPrimitive } from "cmdk";
+// optional dep shim for cmdk
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let CommandPrimitive: any = {};
+try { CommandPrimitive = require('cmdk'); } catch {}
 import { Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";

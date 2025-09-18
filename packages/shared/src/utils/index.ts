@@ -3,3 +3,4 @@
 export * from './storage';
 export * from './performance';
 export * from './validation';
+export * from './classnames';

@@ -9,11 +9,11 @@ import {
   PaneSplitter,
   StateError,
   TabGroup
-} from "@/types/obsidian-editor';
-import { generateId, createDefaultTab, createDefaultPane, createDefaultSettings } from "@/utils/obsidian-editor-utils';
-import { storageManager } from "@/utils/storage-manager';
-import { sessionRecoveryService } from "@/utils/session-recovery';
-import { autoSaveService } from "@/utils/auto-save-service';
+} from '@/types/obsidian-editor';
+import { generateId, createDefaultTab, createDefaultPane, createDefaultSettings } from '@/utils/obsidian-editor-utils';
+import { storageManager } from '@/utils/storage-manager';
+import { sessionRecoveryService } from '@/utils/session-recovery';
+import { autoSaveService } from '@/utils/auto-save-service';
 
 interface EditorActions {
   // Tab 操作
@@ -708,7 +708,7 @@ export const useObsidianEditorStore = create<EditorStore>()(
         }
       },
 
-      saveAllFiles: async () => {
+      saveAllFiles: async (): Promise<void> => {
         const state = get();
         const result = await autoSaveService.saveAll(state.tabs);
         
@@ -728,7 +728,7 @@ export const useObsidianEditorStore = create<EditorStore>()(
           console.error(`Failed to save ${result.failed.length} files:`, result.failed);
         }
         
-        return result;
+        return;
       },
 
       // 设置操作

@@ -8,7 +8,7 @@ import {
   KeyboardNavigationManager,
   KEYBOARD_KEYS,
   SCREEN_READER_MESSAGES
-} from "@/utils/accessibility-utils';
+} from '@/utils/accessibility-utils';
 
 /**
  * 可访问性配置接口

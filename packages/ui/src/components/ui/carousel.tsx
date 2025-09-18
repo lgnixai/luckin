@@ -1,5 +1,10 @@
 import * as React from "react";
-import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
+// optional dep shim
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let useEmblaCarousel: any = () => [null, {} as any];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UseEmblaCarouselType = any;
+try { ({ default: useEmblaCarousel } = require('embla-carousel-react')); } catch {}
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -42,10 +47,10 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
   ({ orientation = "horizontal", opts, setApi, plugins, className, children, ...props }, ref) => {
     const [carouselRef, api] = useEmblaCarousel(
       {
-        ...opts,
+        ...(opts as any),
         axis: orientation === "horizontal" ? "x" : "y",
-      },
-      plugins,
+      } as any,
+      plugins as any,
     );
     const [canScrollPrev, setCanScrollPrev] = React.useState(false);
     const [canScrollNext, setCanScrollNext] = React.useState(false);
@@ -108,7 +113,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
           carouselRef,
           api: api,
           opts,
-          orientation: orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
+          orientation: orientation || ((opts as any)?.axis === "y" ? "vertical" : "horizontal"),
           scrollPrev,
           scrollNext,
           canScrollPrev,

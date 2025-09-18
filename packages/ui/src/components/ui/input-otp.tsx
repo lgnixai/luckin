@@ -1,5 +1,9 @@
 import * as React from "react";
-import { OTPInput, OTPInputContext } from "input-otp";
+// ambient module for input-otp might not be installed in workspace; use 'any' fallback
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const InputOtpModule: any = require('input-otp');
+const OTPInput = InputOtpModule.OTPInput as any;
+const OTPInputContext = InputOtpModule.OTPInputContext as React.Context<any>;
 import { Dot } from "lucide-react";
 
 import { cn } from "@/lib/utils";

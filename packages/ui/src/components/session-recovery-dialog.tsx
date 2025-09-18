@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSessionRecovery } from "@/hooks/usePersistence';
-import { StateError } from "@/types/obsidian-editor';
+import { useSessionRecovery } from '@/hooks/usePersistence';
+import { StateError } from '@/types/obsidian-editor';
 
 interface SessionRecoveryDialogProps {
   isOpen: boolean;

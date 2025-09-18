@@ -12,7 +12,8 @@ export default defineConfig({
     'react-dom',
     '@lgnixai/luckin-core-legacy',
     '@lgnixai/luckin-core',
-    '@lgnixai/luckin-types'
+    '@lgnixai/luckin-types',
+    '@lgnixai/luckin-shared'
   ],
   treeshake: true,
 })

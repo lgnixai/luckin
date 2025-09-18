@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTestService, useThemeService } from '@lgnixai/luckin-core-legacy';
+import { useTestService, useThemeService } from '@lgnixai/luckin-core';
 import { Play, RotateCcw, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 
 export interface TestPaneProps {
@@ -118,7 +118,7 @@ export const TestPane: React.FC<TestPaneProps> = ({ className }) => {
       
       {/* Test Suites */}
       <div className="flex-1 overflow-auto p-2 space-y-4">
-        {testSuites.map((suite) => (
+        {testSuites.map((suite: any) => (
           <div key={suite.id}>
             <div className="flex items-center gap-2 mb-2">
               {getStatusIcon(suite.status)}
@@ -127,7 +127,7 @@ export const TestPane: React.FC<TestPaneProps> = ({ className }) => {
               </h4>
             </div>
             <div className="space-y-1">
-              {suite.tests.map((test) => (
+              {suite.tests.map((test: any) => (
                 <div key={test.id} className="flex items-center gap-2">
                   <Button
                     variant="outline"

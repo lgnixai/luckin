@@ -1,4 +1,4 @@
-import { Tab, EditorPane, EditorSettings } from "@/types/obsidian-editor';
+import { Tab, EditorPane, EditorSettings } from '@/types/obsidian-editor';
 
 // ID 生成器
 export const generateId = (): string => {

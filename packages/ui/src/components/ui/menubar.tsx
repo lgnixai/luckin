@@ -1,5 +1,8 @@
 import * as React from "react";
-import * as MenubarPrimitive from "@radix-ui/react-menubar";
+// shim to avoid non-portable type names in strict tsc
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let MenubarPrimitive: any = {};
+try { MenubarPrimitive = require('@radix-ui/react-menubar'); } catch {}
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";

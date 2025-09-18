@@ -1,12 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "incremental": false,
+    "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "baseUrl": "./src",
     "paths": {

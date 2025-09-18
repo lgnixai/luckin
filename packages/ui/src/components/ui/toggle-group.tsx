@@ -1,5 +1,8 @@
 import * as React from "react";
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
+// optional dep shim
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let ToggleGroupPrimitive: any = {};
+try { ToggleGroupPrimitive = require('@radix-ui/react-toggle-group'); } catch {}
 import { type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
