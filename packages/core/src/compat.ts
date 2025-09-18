@@ -1,36 +1,75 @@
-// Compatibility layer: temporarily re-expose legacy services/stores/utilities
-// to satisfy existing UI imports during the refactor. All exports are typed as
-// any to avoid declaration build coupling to the legacy package types.
+/**
+ * Compatibility Layer - Backward compatibility with legacy code
+ * @author LGINX AI Corporation
+ * @version 3.0.0
+ */
 
-import * as legacy from '@lgnixai/luckin-core-legacy';
+// Re-export foundation types for legacy compatibility
+export type {
+  Disposable,
+  IService,
+  IConfiguration,
+  ServiceIdentifier,
+  ServiceLifetime
+} from '@lgnixai/luckin-foundation';
 
-// Services
-export const useEditorService: any = legacy.useEditorService;
-export const useCommandService: any = legacy.useCommandService;
-export const useMenuService: any = legacy.useMenuService;
-export const useNotificationService: any = legacy.useNotificationService;
-export const useSearchService: any = legacy.useSearchService;
-export const useI18nService: any = legacy.useI18nService;
-export const ExtensionService: any = legacy.ExtensionService;
-export const useTestService: any = legacy.useTestService;
-export const useThemeService: any = legacy.useThemeService;
+export {
+  ErrorCode,
+  LifecyclePhase
+} from '@lgnixai/luckin-foundation';
 
-// Stores
-export const useLayoutStore: any = legacy.useLayoutStore;
-export const useThemeStore: any = legacy.useThemeStore;
-export const useEditorStore: any = legacy.useEditorStore;
+// Re-export services for legacy compatibility
+export type {
+  IEditorDocument,
+  IEditorTab,
+  IEditorGroup
+} from './services/editor-service';
 
-// Types (loose any typings)
-export type ILuckinConfig = any;
-export type IUseLuckinReturn = any;
-export type IEditorTab = any;
-export type PanelNode = any;
-export type IFileTreeNode = any;
+export type {
+  ITheme
+} from './services/theme-service';
 
-// Panel tree utils
-export const findNodeById: any = legacy.findNodeById;
-export const findFirstLeaf: any = legacy.findFirstLeaf;
-export const updateTabsForPanel: any = legacy.updateTabsForPanel;
-export const splitPanelImmutable: any = legacy.splitPanelImmutable;
-export const removePanelNodeImmutable: any = legacy.removePanelNodeImmutable;
+export type {
+  ICommand,
+  CommandHandler
+} from './services/command-service';
 
+export type {
+  INotification,
+  INotificationAction,
+  NotificationSeverity
+} from './services/notification-service';
+
+// Re-export configuration types
+export type {
+  ILuckinConfig
+} from './config';
+
+// Legacy service IDs (for backward compatibility)
+export const SERVICE_IDS = {
+  EDITOR: 'editor',
+  THEME: 'theme',
+  COMMAND: 'command',
+  NOTIFICATION: 'notification',
+  CONFIGURATION: 'configuration'
+} as const;
+
+// Legacy error types (for backward compatibility)
+export const ERROR_CODES = {
+  UNKNOWN: ErrorCode.Unknown,
+  INVALID_ARGUMENT: ErrorCode.InvalidArgument,
+  NOT_FOUND: ErrorCode.NotFound,
+  ALREADY_EXISTS: ErrorCode.AlreadyExists,
+  PERMISSION_DENIED: ErrorCode.PermissionDenied,
+  TIMEOUT: ErrorCode.Timeout,
+  SERVICE_UNAVAILABLE: ErrorCode.ServiceUnavailable,
+  CONFIGURATION_ERROR: ErrorCode.ConfigurationError
+} as const;
+
+// Legacy lifecycle phases (for backward compatibility)
+export const LIFECYCLE_PHASES = {
+  STARTING: LifecyclePhase.Starting,
+  READY: LifecyclePhase.Ready,
+  RESTORED: LifecyclePhase.Restored,
+  EVENTUALLY: LifecyclePhase.Eventually
+} as const;

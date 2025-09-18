@@ -1,75 +1,88 @@
+/**
+ * @deprecated This store is deprecated. Use ThemeService from @lgnixai/luckin-core instead
+ */
+
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { IColorTheme } from '../types';
+import { getGlobalApp, type ThemeService, type ITheme } from '@lgnixai/luckin-core';
+
+console.warn('themeStore is deprecated. Use ThemeService from @lgnixai/luckin-core instead.');
 
 interface ThemeState {
   currentTheme: string;
-  themes: IColorTheme[];
-  setCurrentTheme: (themeId: string) => void;
-  addTheme: (theme: IColorTheme) => void;
+  availableThemes: string[];
+  isDark: boolean;
+  
+  // Actions
+  setTheme: (themeId: string) => void;
+  toggleTheme: () => void;
+  addTheme: (themeId: string) => void;
   removeTheme: (themeId: string) => void;
-  updateTheme: (themeId: string, updates: Partial<IColorTheme>) => void;
 }
 
-const defaultThemes: IColorTheme[] = [
-  {
-    id: 'default-dark',
-    label: 'Default Dark+',
-    uiTheme: 'vs-dark',
-    path: '',
-  },
-  {
-    id: 'default-light',
-    label: 'Default Light+',
-    uiTheme: 'vs',
-    path: '',
-  },
-  {
-    id: 'high-contrast',
-    label: 'Default High Contrast',
-    uiTheme: 'hc-black',
-    path: '',
-  },
-];
+// Get theme service instance
+function getThemeService(): ThemeService {
+  try {
+    return getGlobalApp().getService<ThemeService>('theme');
+  } catch {
+    // Fallback if app not initialized yet
+    return null as any;
+  }
+}
 
 export const useThemeStore = create<ThemeState>()(
-  immer((set) => ({
+  immer((set, get) => ({
     currentTheme: 'default-dark',
-    themes: defaultThemes,
+    availableThemes: ['default-light', 'default-dark', 'high-contrast'],
+    isDark: true,
 
-    setCurrentTheme: (themeId: string) =>
+    setTheme: (themeId: string) => {
+      console.warn('setTheme is deprecated. Use ThemeService.setTheme instead.');
+      const themeService = getThemeService();
+      if (themeService) {
+        themeService.setTheme(themeId);
+        return;
+      }
+
+      // Fallback to legacy implementation
       set((state) => {
-        const theme = state.themes.find((t) => t.id === themeId);
-        if (theme) {
-          state.currentTheme = themeId;
+        state.currentTheme = themeId;
+        state.isDark = themeId.includes('dark') || themeId === 'high-contrast';
+      });
+    },
+
+    toggleTheme: () => {
+      console.warn('toggleTheme is deprecated. Use ThemeService.toggleTheme instead.');
+      const themeService = getThemeService();
+      if (themeService) {
+        themeService.toggleTheme();
+        return;
+      }
+
+      // Fallback to legacy implementation
+      set((state) => {
+        const currentIsDark = state.isDark;
+        const newTheme = currentIsDark ? 'default-light' : 'default-dark';
+        state.currentTheme = newTheme;
+        state.isDark = !currentIsDark;
+      });
+    },
+
+    addTheme: (themeId: string) => {
+      set((state) => {
+        if (!state.availableThemes.includes(themeId)) {
+          state.availableThemes.push(themeId);
         }
-      }),
+      });
+    },
 
-    addTheme: (theme: IColorTheme) =>
+    removeTheme: (themeId: string) => {
       set((state) => {
-        const existingIndex = state.themes.findIndex((t) => t.id === theme.id);
-        if (existingIndex !== -1) {
-          state.themes[existingIndex] = theme;
-        } else {
-          state.themes.push(theme);
-        }
-      }),
-
-    removeTheme: (themeId: string) =>
-      set((state) => {
-        state.themes = state.themes.filter((t) => t.id !== themeId);
+        state.availableThemes = state.availableThemes.filter(id => id !== themeId);
         if (state.currentTheme === themeId) {
-          state.currentTheme = 'default-dark';
+          state.currentTheme = state.availableThemes[0] || 'default-dark';
         }
-      }),
-
-    updateTheme: (themeId: string, updates: Partial<IColorTheme>) =>
-      set((state) => {
-        const theme = state.themes.find((t) => t.id === themeId);
-        if (theme) {
-          Object.assign(theme, updates);
-        }
-      }),
+      });
+    },
   }))
 );
-

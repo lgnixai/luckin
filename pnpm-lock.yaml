@@ -96,9 +96,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@lgnixai/luckin-core-legacy':
+      '@lgnixai/luckin-foundation':
         specifier: workspace:*
-        version: link:../core-legacy
+        version: link:../foundation
       '@lgnixai/luckin-shared':
         specifier: workspace:*
         version: link:../shared
@@ -151,6 +151,21 @@ importers:
         version: 18.3.1(react@18.3.1)
       tsup:
         specifier: ^8.0.1
+        version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.2)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.2
+
+  packages/foundation:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.17
+      rimraf:
+        specifier: ^5.0.0
+        version: 5.0.10
+      tsup:
+        specifier: ^8.0.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.2)(yaml@2.8.1)
       typescript:
         specifier: ^5.3.0
@@ -3009,6 +3024,10 @@ packages:
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     deprecated: Rimraf versions prior to v4 are no longer supported
+    hasBin: true
+
+  rimraf@5.0.10:
+    resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
   rollup@4.50.2:
@@ -6173,6 +6192,10 @@ snapshots:
   rimraf@3.0.2:
     dependencies:
       glob: 7.2.3
+
+  rimraf@5.0.10:
+    dependencies:
+      glob: 10.4.5
 
   rollup@4.50.2:
     dependencies:

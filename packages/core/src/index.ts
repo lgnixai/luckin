@@ -1,8 +1,17 @@
-// 新核心包导出
+/**
+ * Luckin Core - Business logic and services for Luckin IDE
+ * @author LGINX AI Corporation
+ * @version 3.0.0
+ */
 
-export * from './foundation';
-export * from './services/base';
+// Re-export foundation types and utilities
+export * from '@lgnixai/luckin-foundation';
 
-// Temporary legacy re-exports for UI compatibility during refactor (types-only)
-// Note: legacy type interfaces are available from the legacy package directly
-export * from './compat';
+// Core services
+export * from './services';
+
+// Configuration
+export * from './config';
+
+// Application
+export * from './application';
