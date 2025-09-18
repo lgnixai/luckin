@@ -1,0 +1,41 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@lginxai/luckin-core": ["../../packages/core/src"],
+      "@lginxai/luckin-ui": ["../../packages/ui/src"],
+      "@lginxai/luckin-types": ["../../packages/types/src"],
+      "@lginxai/luckin-shared": ["../../packages/shared/src"],
+      "@lginxai/luckin-core-legacy": ["../../packages/core-legacy/src"],
+      "@/components/*": ["../../packages/ui/src/components/*"],
+      "@/hooks/*": ["../../packages/ui/src/hooks/*"],
+      "@/utils/*": ["../../packages/ui/src/utils/*"],
+      "@/stores/*": ["../../packages/ui/src/stores/*"],
+      "@/types/*": ["../../packages/ui/src/types/*"],
+      "@/lib/*": ["../../packages/ui/src/lib/*"],
+      "@/providers/*": ["../../packages/ui/src/providers/*"],
+      "@/styles/*": ["../../packages/ui/src/styles/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+

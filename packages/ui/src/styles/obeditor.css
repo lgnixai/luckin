@@ -1,0 +1,206 @@
+/* Obsidian Editor 组件样式 */
+
+:root {
+  /* Tab 相关颜色 */
+  --tab-border: hsl(var(--border));
+  --tab-active: hsl(var(--background));
+  --tab-inactive: hsl(var(--muted));
+  --tab-hover: hsl(var(--accent));
+  
+  /* Panel 相关颜色 */
+  --panel-background: hsl(var(--background));
+  --panel-border: hsl(var(--border));
+  
+  /* Navigation 相关颜色 */
+  --nav-hover: hsl(var(--accent));
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+  --tab-active: hsl(var(--card));
+  --tab-inactive: hsl(var(--muted) / 0.5);
+}
+
+/* Tab 样式 */
+.tab-container {
+  @apply flex items-center min-w-0 max-w-[200px] h-8;
+  @apply border-r border-border;
+  @apply transition-colors duration-150;
+}
+
+.tab-container.active {
+  @apply bg-background;
+}
+
+.tab-container.inactive {
+  @apply bg-muted hover:bg-muted/80;
+}
+
+.tab-container.locked {
+  @apply opacity-75;
+}
+
+/* Tab Bar 样式 */
+.tab-bar {
+  @apply flex items-center bg-background border-b border-border;
+}
+
+.tab-bar-navigation {
+  @apply flex items-center px-2 border-r border-border;
+}
+
+.tab-bar-tabs {
+  @apply flex flex-1 overflow-hidden;
+}
+
+.tab-bar-actions {
+  @apply flex items-center px-2 border-l border-border;
+}
+
+/* Editor 样式 */
+.obeditor-container {
+  @apply flex h-full w-full min-w-0 flex-col bg-card p-2;
+}
+
+.obeditor-content {
+  @apply flex-1 min-h-0 relative;
+}
+
+.obeditor-editable {
+  @apply h-full w-full outline-none;
+}
+
+.obeditor-placeholder {
+  @apply text-sm text-muted-foreground select-none;
+}
+
+/* Slash Menu 样式 */
+.slash-menu {
+  @apply rounded border bg-popover text-popover-foreground shadow-md;
+  @apply absolute z-50;
+}
+
+.slash-menu-list {
+  @apply py-1 min-w-[160px];
+}
+
+.slash-menu-item {
+  @apply px-3 py-1 cursor-pointer text-sm transition-colors;
+}
+
+.slash-menu-item:hover {
+  @apply bg-accent/50;
+}
+
+.slash-menu-item.active {
+  @apply bg-accent text-accent-foreground;
+}
+
+/* Panel 样式 */
+.panel-container {
+  @apply h-full w-full min-w-0 flex flex-col bg-background;
+}
+
+.panel-leaf {
+  @apply h-full flex flex-col;
+}
+
+.panel-split {
+  @apply min-w-0;
+}
+
+.panel-resize-handle {
+  @apply transition-colors duration-200;
+}
+
+.panel-resize-handle.horizontal {
+  @apply w-1 bg-border hover:bg-accent;
+}
+
+.panel-resize-handle.vertical {
+  @apply h-1 bg-border hover:bg-accent;
+}
+
+/* Error 样式 */
+.error-display {
+  @apply flex flex-col items-center justify-center h-full p-4 text-center;
+}
+
+.error-title {
+  @apply text-destructive text-lg font-semibold mb-2;
+}
+
+.error-message {
+  @apply text-muted-foreground text-sm mb-4;
+}
+
+.error-retry-button {
+  @apply mt-4;
+}
+
+/* 动画效果 */
+@keyframes tab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-container {
+  animation: tab-fade-in 0.2s ease-out;
+}
+
+@keyframes slash-menu-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.slash-menu {
+  animation: slash-menu-fade-in 0.15s ease-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tab-container {
+    @apply max-w-[150px];
+  }
+  
+  .tab-bar-navigation {
+    @apply px-1;
+  }
+  
+  .tab-bar-actions {
+    @apply px-1;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .tab-container {
+    @apply border-2;
+  }
+  
+  .tab-container.active {
+    @apply ring-2 ring-primary;
+  }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+  .tab-container,
+  .slash-menu,
+  .panel-resize-handle {
+    animation: none;
+    transition: none;
+  }
+}

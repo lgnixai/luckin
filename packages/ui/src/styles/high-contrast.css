@@ -1,0 +1,369 @@
+/**
+ * High Contrast Theme for Obsidian Editor
+ * Provides enhanced contrast for better accessibility
+ */
+
+/* High contrast mode styles */
+.high-contrast {
+  /* Base colors with high contrast */
+  --background: #000000;
+  --foreground: #ffffff;
+  --muted: #333333;
+  --muted-foreground: #cccccc;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --border: #ffffff;
+  --input: #000000;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+  --accent: #444444;
+  --accent-foreground: #ffffff;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --ring: #ffffff;
+  --radius: 0; /* Remove rounded corners for clarity */
+}
+
+/* High contrast specific overrides */
+.high-contrast .obsidian-editor {
+  /* Ensure strong borders everywhere */
+  border: 2px solid var(--border);
+}
+
+.high-contrast .tab {
+  /* Strong tab borders and backgrounds */
+  border: 2px solid var(--border) !important;
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.high-contrast .tab[aria-selected="true"] {
+  /* Active tab with strong contrast */
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+  font-weight: bold;
+}
+
+.high-contrast .tab:hover {
+  /* Hover state with clear indication */
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border-color: var(--accent) !important;
+}
+
+.high-contrast .tab:focus {
+  /* Strong focus indicator */
+  outline: 3px solid var(--ring) !important;
+  outline-offset: 2px;
+}
+
+.high-contrast .tab-bar {
+  /* Tab bar with strong border */
+  border: 2px solid var(--border);
+  background: var(--background);
+}
+
+.high-contrast .editor-pane {
+  /* Pane with strong borders */
+  border: 2px solid var(--border);
+  background: var(--background);
+}
+
+.high-contrast .pane-splitter {
+  /* Visible splitter */
+  background: var(--border) !important;
+  border: 1px solid var(--foreground);
+  min-width: 4px;
+  min-height: 4px;
+}
+
+.high-contrast .pane-splitter:hover {
+  /* Splitter hover state */
+  background: var(--accent) !important;
+}
+
+.high-contrast .file-editor {
+  /* Editor content area */
+  background: var(--background);
+  color: var(--foreground);
+  border: 2px solid var(--border);
+}
+
+.high-contrast .quick-actions {
+  /* Quick actions panel */
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 2px solid var(--border);
+}
+
+.high-contrast .quick-actions button {
+  /* Quick action buttons */
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 2px solid var(--border);
+  font-weight: bold;
+}
+
+.high-contrast .quick-actions button:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+
+.high-contrast .quick-actions button:focus {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Menu and dropdown styles */
+.high-contrast .dropdown-menu {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 2px solid var(--border);
+}
+
+.high-contrast .dropdown-menu button {
+  background: transparent;
+  color: var(--popover-foreground);
+  border: 1px solid transparent;
+}
+
+.high-contrast .dropdown-menu button:hover,
+.high-contrast .dropdown-menu button:focus {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+
+.high-contrast .dropdown-menu button[aria-selected="true"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  font-weight: bold;
+}
+
+/* Dialog styles */
+.high-contrast .dialog {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 3px solid var(--border);
+}
+
+.high-contrast .dialog-header {
+  border-bottom: 2px solid var(--border);
+  font-weight: bold;
+}
+
+.high-contrast .dialog button {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 2px solid var(--border);
+  font-weight: bold;
+}
+
+.high-contrast .dialog button:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.high-contrast .dialog button:focus {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Input and form elements */
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  background: var(--input);
+  color: var(--foreground);
+  border: 2px solid var(--border);
+}
+
+.high-contrast input:focus,
+.high-contrast textarea:focus,
+.high-contrast select:focus {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+  border-color: var(--primary);
+}
+
+/* Status indicators */
+.high-contrast .status-dirty {
+  color: #ffff00 !important; /* Bright yellow for dirty status */
+  font-weight: bold;
+}
+
+.high-contrast .status-locked {
+  color: #ff8800 !important; /* Bright orange for locked status */
+  font-weight: bold;
+}
+
+.high-contrast .status-error {
+  color: var(--destructive) !important;
+  font-weight: bold;
+}
+
+/* Drag and drop indicators */
+.high-contrast .drag-indicator {
+  background: var(--primary) !important;
+  border: 2px solid var(--primary-foreground);
+}
+
+.high-contrast .drop-zone {
+  border: 3px dashed var(--primary) !important;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbars */
+.high-contrast ::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.high-contrast ::-webkit-scrollbar-track {
+  background: var(--background);
+  border: 1px solid var(--border);
+}
+
+.high-contrast ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 1px solid var(--foreground);
+}
+
+.high-contrast ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Loading and skeleton states */
+.high-contrast .skeleton {
+  background: var(--muted) !important;
+  border: 1px solid var(--border);
+}
+
+.high-contrast .loading-spinner {
+  border-color: var(--border);
+  border-top-color: var(--primary);
+}
+
+/* Accessibility helpers */
+.high-contrast .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.high-contrast .skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 8px;
+  text-decoration: none;
+  border: 2px solid var(--border);
+  font-weight: bold;
+  z-index: 1000;
+}
+
+.high-contrast .skip-link:focus {
+  top: 6px;
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Focus indicators for all interactive elements */
+.high-contrast button:focus,
+.high-contrast a:focus,
+.high-contrast [tabindex]:focus {
+  outline: 3px solid var(--ring) !important;
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+.high-contrast .js-focus-visible button:focus:not(.focus-visible),
+.high-contrast .js-focus-visible a:focus:not(.focus-visible),
+.high-contrast .js-focus-visible [tabindex]:focus:not(.focus-visible) {
+  outline: none;
+}
+
+/* Ensure text has sufficient contrast */
+.high-contrast * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove gradients and complex backgrounds */
+.high-contrast *::before,
+.high-contrast *::after {
+  background-image: none !important;
+  background-gradient: none !important;
+}
+
+/* Print styles for high contrast */
+@media print {
+  .high-contrast * {
+    background: white !important;
+    color: black !important;
+    border-color: black !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .high-contrast * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Large text support */
+@media (min-resolution: 192dpi) {
+  .high-contrast {
+    font-size: 1.1em;
+  }
+}
+
+/* Windows High Contrast Mode detection */
+@media (-ms-high-contrast: active) {
+  .obsidian-editor {
+    border: 2px solid WindowText;
+    background: Window;
+    color: WindowText;
+  }
+  
+  .tab[aria-selected="true"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+  
+  .tab:focus {
+    outline: 2px solid WindowText;
+  }
+}
+
+@media (-ms-high-contrast: black-on-white) {
+  .obsidian-editor {
+    background: white;
+    color: black;
+  }
+}
+
+@media (-ms-high-contrast: white-on-black) {
+  .obsidian-editor {
+    background: black;
+    color: white;
+  }
+}
