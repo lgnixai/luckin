@@ -1,12 +1,15 @@
-export { ExtensionService } from './extensionService';
-export { useTestService } from './testService';
-export { useEditorService } from './editorService';
-export { useNotificationService } from './notificationService';
-export { useMenuService } from './menuService';
-export { useCommandService } from './commandService';
-export { useThemeService } from './themeService';
+/**
+ * Legacy Services - Compatibility wrappers for new service architecture
+ * @author LGINX AI Corporation
+ * @version 3.0.0
+ * @deprecated Use services from @lgnixai/luckin-core instead
+ */
 
-// Search service placeholder
-export { useSearchService } from './searchService';
-export { useI18nService } from './i18nService';
+// Re-export new services
+export * from '@lgnixai/luckin-core';
 
+// Legacy service wrappers
+export * from './legacy-editor-service';
+export * from './legacy-theme-service';
+export * from './legacy-command-service';
+export * from './legacy-notification-service';

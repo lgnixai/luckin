@@ -15,9 +15,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@lgnixai/luckin-foundation": "workspace:*",
     "@lgnixai/luckin-types": "workspace:*",
     "@lgnixai/luckin-shared": "workspace:*",
-    "@lgnixai/luckin-core-legacy": "workspace:*",
     "zustand": "^4.4.7",
     "immer": "^10.0.3"
   },
