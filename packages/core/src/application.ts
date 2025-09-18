@@ -213,11 +213,19 @@ export class LuckinApplication {
     const commandService = this._container.get<CommandService>('command');
     const notificationService = this._container.get<NotificationService>('notification');
 
-    // Register with global registry
-    globalServiceRegistry.register(editorService);
-    globalServiceRegistry.register(themeService);
-    globalServiceRegistry.register(commandService);
-    globalServiceRegistry.register(notificationService);
+    // Register with global registry (check if already registered to avoid duplicates)
+    if (!globalServiceRegistry.has(editorService.id)) {
+      globalServiceRegistry.register(editorService);
+    }
+    if (!globalServiceRegistry.has(themeService.id)) {
+      globalServiceRegistry.register(themeService);
+    }
+    if (!globalServiceRegistry.has(commandService.id)) {
+      globalServiceRegistry.register(commandService);
+    }
+    if (!globalServiceRegistry.has(notificationService.id)) {
+      globalServiceRegistry.register(notificationService);
+    }
 
     // Initialize all services
     await globalServiceRegistry.initializeAll();
