@@ -20,6 +20,7 @@ interface FileTreeState {
   renameNode: (id: string, name: string) => void;
   deleteNode: (id: string) => void;
   listChildren: (id: string) => FileNodeData[];
+  setDocumentId: (fileId: string, documentId: string) => void;
 }
 
 const STORAGE_KEY = 'obsidian.clone.filetree';
@@ -108,6 +109,16 @@ export const useFileTree = create<FileTreeState>()(
       const node = get().nodesById[id];
       if (!node || node.type !== 'folder') return [];
       return (node.children || []).map((cid) => get().nodesById[cid]).filter(Boolean) as FileNodeData[];
+    },
+
+    setDocumentId: (fileId: string, documentId: string) => {
+      set((state: FileTreeState) => {
+        const node = state.nodesById[fileId];
+        if (node && node.type === 'file') {
+          node.documentId = documentId;
+          node.updatedAt = Date.now();
+        }
+      });
     }
   }))
 );

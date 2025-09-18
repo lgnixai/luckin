@@ -2,12 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { TabBar, type TabType } from './Tab';
 import Editor from './Editor';
+import EnhancedEditor from './EnhancedEditor';
 import WorkspaceManager from './WorkspaceManager';
 import { useDocuments } from '@/stores/documents';
 import { useTabManager } from '@/stores/tabManager';
 import { Layout, Save } from 'lucide-react';
 import { useFileTree } from '@/stores/filetree';
 import useShortcuts from '@/hooks/useShortcuts';
+import { useFileTreeEditorIntegration } from '@/hooks/useFileTreeEditorIntegration';
 
 import type { PanelNode } from '@lgnixai/luckin-core';
 import {
@@ -29,6 +31,7 @@ const ObsidianLayout: React.FC = () => {
   const { createDocument, renameDocument } = useDocuments();
   const { loadWorkspaceLayout: _loadWorkspaceLayout } = useTabManager();
   const [showWorkspaceManager, setShowWorkspaceManager] = useState(false);
+  const { createFileFromEditor } = useFileTreeEditorIntegration();
   const [panelTree, setPanelTree] = useState<PanelNode>({
     id: 'root',
     type: 'split',
@@ -299,15 +302,21 @@ const ObsidianLayout: React.FC = () => {
     if (!panel?.tabs) return;
 
     const documentId = createDocument('新标签页', { content: '', language: 'markdown' });
+    
+    // 在文件树中创建对应的文件
+    const fileId = createFileFromEditor('新标签页.md', documentId);
+    
     const newTab = {
       id: Date.now().toString(),
       title: '新标签页',
-      isActive: false,
-      documentId
+      isActive: true, // 新标签页应该立即激活
+      documentId,
+      filePath: `新标签页.md` // 可以从文件树获取完整路径
     } as TabType;
-    const newTabs = [...panel.tabs, newTab];
+    const newTabs = panel.tabs.map(t => ({ ...t, isActive: false })); // 取消其他标签的激活状态
+    newTabs.push(newTab);
     updatePanelTabs(panelId, newTabs);
-  }, [panelTree, findPanelById, updatePanelTabs, createDocument]);
+  }, [panelTree, findPanelById, updatePanelTabs, createDocument, createFileFromEditor]);
 
   const handleCloseOthers = useCallback((panelId: string) => (id: string) => {
     const panel = findPanelById(panelTree, panelId);
@@ -335,30 +344,32 @@ const ObsidianLayout: React.FC = () => {
   const renderPanelNode = useCallback((node: PanelNode): React.ReactElement => {
     if (node.type === 'leaf' && node.tabs) {
       return (
-        <div className="h-full flex flex-col">
-          <TabBar
-            tabs={node.tabs}
-            onCloseTab={handleCloseTab(node.id)}
-            onActivateTab={handleActivateTab(node.id)}
-            onAddTab={handleAddTab(node.id)}
-            onCloseOthers={handleCloseOthers(node.id)}
-            onCloseAll={handleCloseAll(node.id)}
-            onSplitHorizontal={handleSplitHorizontal(node.id)}
-            onSplitVertical={handleSplitVertical(node.id)}
-            onToggleLock={handleToggleLock(node.id)}
-            onDuplicate={handleDuplicate(node.id)}
-            onRename={handleRename(node.id)}
-            onCopyPath={handleCopyPath(node.id)}
-            onRevealInExplorer={handleRevealInExplorer(node.id)}
-            onReorderTabs={(newTabs) => updatePanelTabs(node.id, newTabs)}
-            onBack={() => goBack(node.id)}
-            onForward={() => goForward(node.id)}
-            panelId={node.id}
-          />
-          <div className="flex flex-1 min-h-0">
-            <div className="flex flex-1 min-w-0">
-              <div className="flex-1">
-                <Editor documentId={node.tabs.find(t => t.isActive)?.documentId} />
+        <div className="h-full flex flex-col overflow-hidden">
+          <div className="flex-shrink-0">
+            <TabBar
+              tabs={node.tabs}
+              onCloseTab={handleCloseTab(node.id)}
+              onActivateTab={handleActivateTab(node.id)}
+              onAddTab={handleAddTab(node.id)}
+              onCloseOthers={handleCloseOthers(node.id)}
+              onCloseAll={handleCloseAll(node.id)}
+              onSplitHorizontal={handleSplitHorizontal(node.id)}
+              onSplitVertical={handleSplitVertical(node.id)}
+              onToggleLock={handleToggleLock(node.id)}
+              onDuplicate={handleDuplicate(node.id)}
+              onRename={handleRename(node.id)}
+              onCopyPath={handleCopyPath(node.id)}
+              onRevealInExplorer={handleRevealInExplorer(node.id)}
+              onReorderTabs={(newTabs) => updatePanelTabs(node.id, newTabs)}
+              onBack={() => goBack(node.id)}
+              onForward={() => goForward(node.id)}
+              panelId={node.id}
+            />
+          </div>
+          <div className="flex flex-1 min-h-0 overflow-hidden">
+            <div className="flex flex-1 min-w-0 overflow-hidden">
+              <div className="flex-1 overflow-hidden">
+                <EnhancedEditor documentId={node.tabs.find(t => t.isActive)?.documentId} />
               </div>
             </div>
           </div>
@@ -409,9 +420,9 @@ const ObsidianLayout: React.FC = () => {
   ]);
 
   return (
-    <div className="h-full w-full flex flex-col bg-background">
+    <div className="h-full w-full flex flex-col bg-background overflow-hidden">
       {/* Top toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-panel border-b border-border">
+      <div className="flex items-center justify-between px-4 py-2 bg-panel border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">Obsidian Clone</span>
         </div>
@@ -436,9 +447,8 @@ const ObsidianLayout: React.FC = () => {
       </div>
       
       {/* Main content */}
-      <div className="flex-1 flex min-h-0">
-        
-        <div className="flex-1 min-w-0">
+      <div className="flex-1 flex min-h-0 overflow-hidden">        
+        <div className="flex-1 min-w-0 overflow-hidden">
           {renderPanelNode(panelTree)}
         </div>
       </div>

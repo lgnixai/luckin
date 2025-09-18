@@ -142,13 +142,17 @@ const Tab: React.FC<TabProps> = ({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group relative flex items-center min-w-0 max-w-[200px] h-8",
+            "group relative flex items-center min-w-0 h-8 flex-shrink-0",
             "border-r border-tab-border",
             tab.isActive 
               ? "bg-tab-active" 
               : "bg-tab-inactive hover:bg-tab-hover"
           )}
-          style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
+          style={maxWidth ? { 
+            maxWidth: `${maxWidth}px`,
+            minWidth: '80px',  // 最小宽度确保可读性
+            width: `${Math.min(maxWidth, 200)}px`  // 固定宽度，不会随内容变化
+          } : { maxWidth: '200px', minWidth: '80px', width: '200px' }}
         >
           {/* Tab content (drag handle area) */}
           <div 
@@ -593,17 +597,19 @@ const TabBar: React.FC<TabBarProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-x-auto overflow-y-hidden min-w-0">
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
-            {tabs.map((tab) => (
-              <SortableTab key={tab.id} tab={tab} />
-            ))}
+            <div className="flex min-w-0">
+              {tabs.map((tab) => (
+                <SortableTab key={tab.id} tab={tab} />
+              ))}
+            </div>
             {/* Add-tab button follows the last tab */}
             <button 
               onClick={onAddTab}
-              className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground"
+              className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0"
               title="新建标签页 (Ctrl+T)"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
