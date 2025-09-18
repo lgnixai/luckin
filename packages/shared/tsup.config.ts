@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@lginxai/luckin-types']
+  external: ['@lgnixai/luckin-types']
 })

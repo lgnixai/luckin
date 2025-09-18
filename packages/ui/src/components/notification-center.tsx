@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { useNotificationService } from '@lginxai/luckin-core-legacy';
+import { useNotificationService } from '@lgnixai/luckin-core-legacy';
 import { Button } from '@/components/ui/button';
 import { X, Bell } from 'lucide-react';
 

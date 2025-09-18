@@ -15,7 +15,7 @@ const {
   TestTube,
   AlertTriangle
 } = LucideIcons;
-import { useLayoutStore } from '@lginxai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
 
 // Error Boundary for ActivityBar component
 class ActivityBarErrorBoundary extends React.Component<

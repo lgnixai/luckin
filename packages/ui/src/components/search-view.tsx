@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/checkbox";
-import { useSearchService } from '@lginxai/luckin-core-legacy';
+import { useSearchService } from '@lgnixai/luckin-core-legacy';
 
 export interface SearchViewProps {
   className?: string;

@@ -8,9 +8,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: [
-    '@lginxai/luckin-types',
-    '@lginxai/luckin-shared',
-    '@lginxai/luckin-core-legacy',
+    '@lgnixai/luckin-types',
+    '@lgnixai/luckin-shared',
+    '@lgnixai/luckin-core-legacy',
     'zustand',
     'immer'
   ]

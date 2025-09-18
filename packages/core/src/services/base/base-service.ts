@@ -1,8 +1,8 @@
 // 基础服务类
 
-import type { IService, IEventEmitter, Disposable } from '@lginxai/luckin-types';
+import type { IService, IEventEmitter, Disposable } from '@lgnixai/luckin-types';
 import { EventBus } from '../../foundation/events/event-bus';
-import { LuckinError, ERROR_CODES } from '@lginxai/luckin-shared';
+import { LuckinError, ERROR_CODES } from '@lgnixai/luckin-shared';
 
 // 基础服务抽象类
 export abstract class BaseService implements IService {

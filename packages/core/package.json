@@ -1,5 +1,5 @@
 {
-  "name": "@lginxai/luckin-core",
+  "name": "@lgnixai/luckin-core",
   "version": "3.0.0-alpha.0",
   "description": "Core business logic and services for Luckin 3.x",
   "main": "dist/index.js",
@@ -15,9 +15,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@lginxai/luckin-types": "workspace:*",
-    "@lginxai/luckin-shared": "workspace:*",
-    "@lginxai/luckin-core-legacy": "workspace:*",
+    "@lgnixai/luckin-types": "workspace:*",
+    "@lgnixai/luckin-shared": "workspace:*",
+    "@lgnixai/luckin-core-legacy": "workspace:*",
     "zustand": "^4.4.7",
     "immer": "^10.0.3"
   },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { useCommandService } from '@lginxai/luckin-core-legacy';
+import { useCommandService } from '@lgnixai/luckin-core-legacy';
 
 export interface ContextMenuItem {
   id: string;

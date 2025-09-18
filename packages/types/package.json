@@ -1,5 +1,5 @@
 {
-  "name": "@lginxai/luckin-types",
+  "name": "@lgnixai/luckin-types",
   "version": "3.0.0-alpha.0",
   "description": "Unified type definitions for Luckin 3.x",
   "main": "dist/index.js",

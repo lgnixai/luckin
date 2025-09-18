@@ -1,5 +1,5 @@
 {
-  "name": "@lginxai/luckin-core-legacy",
+  "name": "@lgnixai/luckin-core-legacy",
   "version": "3.0.0-alpha.0",
   "description": "Core functionality for Luckin IDE framework",
   "main": "./dist/index.js",

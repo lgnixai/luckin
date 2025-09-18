@@ -21,14 +21,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@lginxai/luckin-core": ["./packages/core/src"],
-      "@lginxai/luckin-ui": ["./packages/ui/src"],
-      "@lginxai/luckin-editor": ["./packages/editor/src"],
-      "@lginxai/luckin-extensions": ["./packages/extensions/src"],
-      "@lginxai/luckin-themes": ["./packages/themes/src"],
-      "@lginxai/luckin-types": ["./packages/types/src"],
-      "@lginxai/luckin-shared": ["./packages/shared/src"],
-      "@lginxai/luckin-core-legacy": ["./packages/core-legacy/src"]
+      "@lgnixai/luckin-core": ["./packages/core/src"],
+      "@lgnixai/luckin-ui": ["./packages/ui/src"],
+      "@lgnixai/luckin-editor": ["./packages/editor/src"],
+      "@lgnixai/luckin-extensions": ["./packages/extensions/src"],
+      "@lgnixai/luckin-themes": ["./packages/themes/src"],
+      "@lgnixai/luckin-types": ["./packages/types/src"],
+      "@lgnixai/luckin-shared": ["./packages/shared/src"],
+      "@lgnixai/luckin-core-legacy": ["./packages/core-legacy/src"]
     }
   },
   "include": [

@@ -32,10 +32,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@lginxai/luckin-core':
+      '@lgnixai/luckin-core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@lginxai/luckin-ui':
+      '@lgnixai/luckin-ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -96,13 +96,13 @@ importers:
 
   packages/core:
     dependencies:
-      '@lginxai/luckin-core-legacy':
+      '@lgnixai/luckin-core-legacy':
         specifier: workspace:*
         version: link:../core-legacy
-      '@lginxai/luckin-shared':
+      '@lgnixai/luckin-shared':
         specifier: workspace:*
         version: link:../shared
-      '@lginxai/luckin-types':
+      '@lgnixai/luckin-types':
         specifier: workspace:*
         version: link:../types
       immer:
@@ -158,7 +158,7 @@ importers:
 
   packages/shared:
     dependencies:
-      '@lginxai/luckin-types':
+      '@lgnixai/luckin-types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -223,13 +223,13 @@ importers:
       '@lexical/utils':
         specifier: ^0.35.0
         version: 0.35.0
-      '@lginxai/luckin-core':
+      '@lgnixai/luckin-core':
         specifier: workspace:*
         version: link:../core
-      '@lginxai/luckin-core-legacy':
+      '@lgnixai/luckin-core-legacy':
         specifier: workspace:*
         version: link:../core-legacy
-      '@lginxai/luckin-types':
+      '@lgnixai/luckin-types':
         specifier: workspace:*
         version: link:../types
       '@monaco-editor/react':

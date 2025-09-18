@@ -2,7 +2,7 @@
 // to satisfy existing UI imports during the refactor. All exports are typed as
 // any to avoid declaration build coupling to the legacy package types.
 
-import * as legacy from '@lginxai/luckin-core-legacy';
+import * as legacy from '@lgnixai/luckin-core-legacy';
 
 // Services
 export const useEditorService: any = legacy.useEditorService;

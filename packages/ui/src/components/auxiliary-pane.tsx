@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Settings } from 'lucide-react';
-import { useLayoutStore } from '@lginxai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
 
 export interface AuxiliaryPaneProps {
   className?: string;

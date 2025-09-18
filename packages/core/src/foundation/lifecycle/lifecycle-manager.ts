@@ -1,9 +1,9 @@
 // 生命周期管理器
 
-import { LifecyclePhase } from '@lginxai/luckin-types';
-import type { ILifecycle, IEventEmitter, Disposable } from '@lginxai/luckin-types';
+import { LifecyclePhase } from '@lgnixai/luckin-types';
+import type { ILifecycle, IEventEmitter, Disposable } from '@lgnixai/luckin-types';
 import { EventBus } from '../events/event-bus';
-import { LuckinError, ERROR_CODES } from '@lginxai/luckin-shared';
+import { LuckinError, ERROR_CODES } from '@lgnixai/luckin-shared';
 
 // 生命周期钩子函数类型
 export type LifecycleHook = () => Promise<void> | void;

@@ -16,15 +16,15 @@ export default defineConfig({
         replacement: path.resolve(__dirname, './src'),
       },
       {
-        find: '@lginxai/luckin-core',
+        find: '@lgnixai/luckin-core',
         replacement: path.resolve(__dirname, '../../packages/core/src'),
       },
       {
-        find: '@lginxai/luckin-ui',
+        find: '@lgnixai/luckin-ui',
         replacement: path.resolve(__dirname, '../../packages/ui/src'),
       },
       {
-        find: '@lginxai/luckin-core-legacy',
+        find: '@lgnixai/luckin-core-legacy',
         replacement: path.resolve(__dirname, '../../packages/core-legacy/src'),
       },
     ],

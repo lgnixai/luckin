@@ -1,7 +1,7 @@
 // 依赖注入容器实现
 
-import type { IService, Disposable } from '@lginxai/luckin-types';
-import { LuckinError, ERROR_CODES } from '@lginxai/luckin-shared';
+import type { IService, Disposable } from '@lgnixai/luckin-types';
+import { LuckinError, ERROR_CODES } from '@lgnixai/luckin-shared';
 
 // 服务标识符类型
 export type ServiceIdentifier<T = any> = string | symbol | (new (...args: any[]) => T);

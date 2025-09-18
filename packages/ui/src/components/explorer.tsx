@@ -2,9 +2,9 @@ import React from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react';
-import type { ITreeNode } from '@lginxai/luckin-types';
+import type { ITreeNode } from '@lgnixai/luckin-types';
 import { ContextMenu } from "@/components/context-menu";
-import { useEditorService } from '@lginxai/luckin-core-legacy';
+import { useEditorService } from '@lgnixai/luckin-core-legacy';
 
 export interface ExplorerProps {
   className?: string;

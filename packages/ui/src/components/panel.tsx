@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { useLayoutStore } from '@lginxai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronUp, X } from 'lucide-react';
 // 移除底部的“辅助栏”标签，将辅助栏回归右侧分栏

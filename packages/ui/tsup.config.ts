@@ -10,9 +10,9 @@ export default defineConfig({
   external: [
     'react', 
     'react-dom',
-    '@lginxai/luckin-core-legacy',
-    '@lginxai/luckin-core',
-    '@lginxai/luckin-types'
+    '@lgnixai/luckin-core-legacy',
+    '@lgnixai/luckin-core',
+    '@lgnixai/luckin-types'
   ],
   treeshake: true,
 })

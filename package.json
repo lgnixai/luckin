@@ -1,5 +1,5 @@
 {
-  "name": "@lginxai/luckin",
+  "name": "@lgnixai/luckin",
   "version": "3.0.0-alpha.0",
   "description": "A modern Web IDE UI Framework built with React.js and shadcn/ui, inspired by VSCode.",
   "private": true,
@@ -21,7 +21,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=!@lginxai/luckin-docs && changeset publish"
+    "release": "turbo run build --filter=!@lgnixai/luckin-docs && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
@@ -45,6 +45,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lginxai/luckin.git"
+    "url": "https://github.com/lgnixai/luckin.git"
   }
 }

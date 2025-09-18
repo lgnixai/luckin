@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { ExtensionService } from '@lginxai/luckin-core-legacy';
-import type { ILuckinConfig, IUseLuckinReturn } from '@lginxai/luckin-core';
+import { ExtensionService } from '@lgnixai/luckin-core-legacy';
+import type { ILuckinConfig, IUseLuckinReturn } from '@lgnixai/luckin-core';
 
 interface LuckinProviderProps {
   config: ILuckinConfig;

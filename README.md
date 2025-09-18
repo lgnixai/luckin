@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Luckin Logo](https://img.shields.io/badge/Luckin-3.0.0--alpha.0-blue.svg)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/lginxai/luckin)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/lgnixai/luckin)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2+-61dafb.svg)](https://reactjs.org/)
@@ -43,7 +43,7 @@
 ## 📦 包结构
 
 ```
-@lginxai/luckin/
+@lgnixai/luckin/
 ├── packages/
 │   ├── core/              # 核心架构和服务
 │   ├── core-legacy/       # 遗留兼容层
@@ -58,12 +58,12 @@
 
 | 包名 | 描述 | 主要功能 |
 |------|------|----------|
-| `@lginxai/luckin-core` | 核心架构 | 依赖注入、事件系统、生命周期管理 |
-| `@lginxai/luckin-core-legacy` | 遗留兼容层 | 向后兼容、服务桥接 |
-| `@lginxai/luckin-types` | 类型定义 | TypeScript 接口和类型 |
-| `@lginxai/luckin-shared` | 共享工具 | 工具函数、常量、错误处理 |
-| `@lginxai/luckin-ui` | UI 组件库 | React 组件、主题、样式 |
-| `@lginxai/luckin-web` | Web 应用 | 完整的 IDE 应用示例 |
+| `@lgnixai/luckin-core` | 核心架构 | 依赖注入、事件系统、生命周期管理 |
+| `@lgnixai/luckin-core-legacy` | 遗留兼容层 | 向后兼容、服务桥接 |
+| `@lgnixai/luckin-types` | 类型定义 | TypeScript 接口和类型 |
+| `@lgnixai/luckin-shared` | 共享工具 | 工具函数、常量、错误处理 |
+| `@lgnixai/luckin-ui` | UI 组件库 | React 组件、主题、样式 |
+| `@lgnixai/luckin-web` | Web 应用 | 完整的 IDE 应用示例 |
 
 ## 🚀 快速开始
 
@@ -77,7 +77,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/lginxai/luckin.git
+git clone https://github.com/lgnixai/luckin.git
 cd luckin
 
 # 安装依赖
@@ -94,8 +94,8 @@ pnpm dev
 
 ```tsx
 import React from 'react';
-import { LuckinProvider, Workbench, CommandPalette } from '@lginxai/luckin-ui';
-import type { ILuckinConfig } from '@lginxai/luckin-core';
+import { LuckinProvider, Workbench, CommandPalette } from '@lgnixai/luckin-ui';
+import type { ILuckinConfig } from '@lgnixai/luckin-core';
 
 const config: ILuckinConfig = {
   extensions: [],
@@ -123,7 +123,7 @@ export default App;
 IDE 的主要容器，提供布局和面板管理。
 
 ```tsx
-import { Workbench } from '@lginxai/luckin-ui';
+import { Workbench } from '@lgnixai/luckin-ui';
 
 <Workbench className="h-screen">
   {/* 自动渲染编辑器、侧边栏、状态栏等 */}
@@ -134,7 +134,7 @@ import { Workbench } from '@lginxai/luckin-ui';
 VSCode 风格的命令面板，支持快捷键 `Ctrl/Cmd + K`。
 
 ```tsx
-import { CommandPalette } from '@lginxai/luckin-ui';
+import { CommandPalette } from '@lgnixai/luckin-ui';
 
 <CommandPalette className="" />
 ```
@@ -143,7 +143,7 @@ import { CommandPalette } from '@lginxai/luckin-ui';
 树形文件浏览器，支持文件操作和上下文菜单。
 
 ```tsx
-import { Explorer } from '@lginxai/luckin-ui';
+import { Explorer } from '@lgnixai/luckin-ui';
 
 <Explorer className="w-64" />
 ```
@@ -152,7 +152,7 @@ import { Explorer } from '@lginxai/luckin-ui';
 基于 Monaco Editor 的代码编辑器，支持多种语言。
 
 ```tsx
-import { Editor } from '@lginxai/luckin-ui';
+import { Editor } from '@lgnixai/luckin-ui';
 
 <Editor 
   language="typescript"
@@ -166,7 +166,7 @@ import { Editor } from '@lginxai/luckin-ui';
 ### 🔌 插件系统
 
 ```tsx
-import { ExtensionService } from '@lginxai/luckin-core-legacy';
+import { ExtensionService } from '@lgnixai/luckin-core-legacy';
 
 const extensionService = new ExtensionService();
 
@@ -183,7 +183,7 @@ extensionService.register({
 ### 🎨 主题系统
 
 ```tsx
-import { useThemeService } from '@lginxai/luckin-core-legacy';
+import { useThemeService } from '@lgnixai/luckin-core-legacy';
 
 function ThemeSelector() {
   const { setTheme, getCurrentTheme } = useThemeService();
@@ -201,7 +201,7 @@ function ThemeSelector() {
 ### 💾 状态管理
 
 ```tsx
-import { useDocuments, useTabManager } from '@lginxai/luckin-ui';
+import { useDocuments, useTabManager } from '@lgnixai/luckin-ui';
 
 function DocumentManager() {
   const { createDocument, documents } = useDocuments();
@@ -321,7 +321,7 @@ import {
   Explorer, 
   Editor,
   CommandPalette 
-} from '@lginxai/luckin-ui';
+} from '@lgnixai/luckin-ui';
 
 function SimpleIDE() {
   const config = {
@@ -350,7 +350,7 @@ function SimpleIDE() {
 #### 自定义主题
 
 ```tsx
-import { useThemeService } from '@lginxai/luckin-core-legacy';
+import { useThemeService } from '@lgnixai/luckin-core-legacy';
 
 const customTheme = {
   id: 'my-theme',
@@ -379,7 +379,7 @@ function MyApp() {
 ### 🔄 依赖注入系统
 
 ```tsx
-import { Injectable, Inject, Container } from '@lginxai/luckin-core';
+import { Injectable, Inject, Container } from '@lgnixai/luckin-core';
 
 @Injectable('my-service')
 class MyService {
@@ -398,7 +398,7 @@ class MyService {
 ### 📡 事件系统
 
 ```tsx
-import { EventBus, EventHandler } from '@lginxai/luckin-core';
+import { EventBus, EventHandler } from '@lgnixai/luckin-core';
 
 class DocumentService {
   private eventBus = EventBus.getInstance('document');
@@ -419,7 +419,7 @@ class DocumentService {
 ### 🔧 服务管理
 
 ```tsx
-import { BaseService } from '@lginxai/luckin-core';
+import { BaseService } from '@lgnixai/luckin-core';
 
 export class EditorService extends BaseService<IEditorConfig> {
   protected async onInitialize() {
@@ -465,7 +465,7 @@ export class EditorService extends BaseService<IEditorConfig> {
 ### 创建插件
 
 ```tsx
-import { IExtension } from '@lginxai/luckin-types';
+import { IExtension } from '@lgnixai/luckin-types';
 
 export const myExtension: IExtension = {
   id: 'my-extension',
@@ -529,7 +529,7 @@ export const myExtension: IExtension = {
 pnpm test
 
 # 运行特定包的测试
-pnpm test --filter @lginxai/luckin-ui
+pnpm test --filter @lgnixai/luckin-ui
 
 # 运行集成测试
 pnpm test:integration
@@ -567,7 +567,7 @@ pnpm test:coverage
 
 ### 🐛 报告问题
 
-请使用 [GitHub Issues](https://github.com/lginxai/luckin/issues) 报告 bug 或提出功能请求。
+请使用 [GitHub Issues](https://github.com/lgnixai/luckin/issues) 报告 bug 或提出功能请求。
 
 ## 📄 许可证
 
@@ -603,9 +603,9 @@ pnpm test:coverage
 
 ## 📞 联系我们
 
-- **GitHub**: [https://github.com/lginxai/luckin](https://github.com/lginxai/luckin)
-- **Issues**: [https://github.com/lginxai/luckin/issues](https://github.com/lginxai/luckin/issues)
-- **Discussions**: [https://github.com/lginxai/luckin/discussions](https://github.com/lginxai/luckin/discussions)
+- **GitHub**: [https://github.com/lgnixai/luckin](https://github.com/lgnixai/luckin)
+- **Issues**: [https://github.com/lgnixai/luckin/issues](https://github.com/lgnixai/luckin/issues)
+- **Discussions**: [https://github.com/lgnixai/luckin/discussions](https://github.com/lgnixai/luckin/discussions)
 
 ---
 

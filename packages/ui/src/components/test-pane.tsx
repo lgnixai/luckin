@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTestService, useThemeService } from '@lginxai/luckin-core-legacy';
+import { useTestService, useThemeService } from '@lgnixai/luckin-core-legacy';
 import { Play, RotateCcw, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 
 export interface TestPaneProps {

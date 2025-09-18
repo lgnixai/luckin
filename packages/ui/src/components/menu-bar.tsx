@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { useMenuService, useI18nService, useLayoutStore, useThemeService } from '@lginxai/luckin-core-legacy';
+import { useMenuService, useI18nService, useLayoutStore, useThemeService } from '@lgnixai/luckin-core-legacy';
 
 export interface MenuBarProps {
   className?: string;
