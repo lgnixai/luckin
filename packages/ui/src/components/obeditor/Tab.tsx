@@ -148,11 +148,14 @@ const Tab: React.FC<TabProps> = ({
               ? "bg-tab-active" 
               : "bg-tab-inactive hover:bg-tab-hover"
           )}
-          style={maxWidth ? { 
-            maxWidth: `${maxWidth}px`,
+          style={{ 
             minWidth: '80px',
-            flex: `0 1 ${maxWidth}px` // 根据可用空间自动收缩，避免撑宽编辑器
-          } : { maxWidth: '200px', minWidth: '80px', flex: '0 1 200px' }}
+            maxWidth: `${maxWidth}px`,
+            width: `${maxWidth}px`,
+            flexShrink: 1,
+            flexGrow: 0,
+            flexBasis: 'auto'
+          }}
         >
           {/* Tab content (drag handle area) */}
           <div 
@@ -332,12 +335,19 @@ const TabBar: React.FC<TabBarProps> = ({
   } = useTabManager();
 
   // Compute dynamic max width per tab to mimic Obsidian-like shrinking
+  // 根据可用空间和标签数量动态计算宽度
   const computeMaxTabWidth = (count: number) => {
-    if (count <= 6) return 200;
-    if (count <= 10) return 150;
-    if (count <= 14) return 120;
-    if (count <= 18) return 100;
-    return 84; // minimal width when too many
+    // 基础宽度：优先保证内容可读性
+    const baseWidth = 200;
+    const minWidth = 80;
+    
+    if (count <= 4) return baseWidth;
+    if (count <= 8) return Math.max(minWidth, baseWidth - (count - 4) * 15);
+    if (count <= 12) return Math.max(minWidth, 140 - (count - 8) * 10);
+    if (count <= 16) return Math.max(minWidth, 100 - (count - 12) * 5);
+    
+    // 当标签页非常多时，使用最小宽度
+    return minWidth;
   };
   const maxTabWidth = computeMaxTabWidth(tabs.length);
 
@@ -583,7 +593,7 @@ const TabBar: React.FC<TabBarProps> = ({
   }
 
   return (
-    <div className="flex items-center bg-panel border-b border-border w-full flex-shrink-0">
+    <div className="flex items-center bg-panel border-b border-border w-full min-w-0">
       {/* Navigation controls */}
       <div className="flex items-center px-2 border-r border-border">
         <div className="p-1 hover:bg-nav-hover rounded cursor-pointer" onClick={handleBack}>
@@ -595,24 +605,24 @@ const TabBar: React.FC<TabBarProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-1 overflow-x-auto overflow-y-hidden min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex min-w-0">
+            <div className="flex">
               {tabs.map((tab) => (
                 <SortableTab key={tab.id} tab={tab} />
               ))}
-            </div>
-            {/* Add-tab button follows the last tab */}
-            <div 
-              onClick={onAddTab}
-              className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0 cursor-pointer"
-              title="新建标签页 (Ctrl+T)"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              {/* Add-tab button follows the last tab */}
+              <div 
+                onClick={onAddTab}
+                className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0 cursor-pointer"
+                title="新建标签页 (Ctrl+T)"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
             </div>
           </SortableContext>
         </DndContext>

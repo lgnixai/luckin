@@ -344,7 +344,7 @@ const ObsidianLayout: React.FC = () => {
   const renderPanelNode = useCallback((node: PanelNode): React.ReactElement => {
     if (node.type === 'leaf' && node.tabs) {
       return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full w-full flex flex-col overflow-hidden min-w-0">
           <div className="flex-shrink-0">
             <TabBar
               tabs={node.tabs}
@@ -366,12 +366,8 @@ const ObsidianLayout: React.FC = () => {
               panelId={node.id}
             />
           </div>
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-            <div className="flex flex-1 min-w-0 overflow-hidden">
-              <div className="flex-1 overflow-hidden">
-                <EnhancedEditor documentId={node.tabs.find(t => t.isActive)?.documentId} />
-              </div>
-            </div>
+          <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
+            <EnhancedEditor documentId={node.tabs.find(t => t.isActive)?.documentId} />
           </div>
         </div>
       );
