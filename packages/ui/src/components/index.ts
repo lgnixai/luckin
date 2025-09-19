@@ -23,3 +23,4 @@ export { ResizableBottomPanel } from './resizable-bottom-panel';
 export { MonacoEditor } from './monaco-editor';
 export { CommandPalette } from './command-palette';
 export { SearchView } from './search-view';
+export { ExtensionManager } from './extension-manager';

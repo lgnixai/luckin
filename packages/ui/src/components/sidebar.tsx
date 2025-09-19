@@ -6,6 +6,7 @@ import { TestPane } from "@/components/test-pane";
 import { SearchView } from "@/components/search-view";
 import { NotificationCenter } from "@/components/notification-center";
 import { SettingsPanel } from "@/components/settings-panel";
+import { ExtensionManager } from "@/components/extension-manager";
 
 export interface SidebarProps {
   className?: string;
@@ -25,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       case 'debug':
         return <div className="p-4">调试面板</div>;
       case 'extensions':
-        return <div className="p-4">扩展面板</div>;
+        return <ExtensionManager />;
       case 'user':
         return <NotificationCenter />;
       case 'test':
