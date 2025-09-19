@@ -146,14 +146,14 @@ const Tab: React.FC<TabProps> = ({
               : "bg-tab-inactive hover:bg-tab-hover"
           )}
           style={{ 
-            minWidth: '10px',
-            maxWidth: '160px',
-            flex: '0 1 120px'
+            minWidth: '80px',
+            maxWidth: '200px',
+            flex: '0 0 120px'
           }}
         >
           {/* Tab content (drag handle area) */}
           <div 
-            className="flex-1 flex items-center px-1 cursor-pointer min-w-0"
+            className="flex-1 flex items-center px-2 cursor-pointer min-w-0"
             onClick={() => onActivate(tab.id)}
             {...(!isRenaming ? dragHandleProps : {})}
           >
@@ -176,7 +176,11 @@ const Tab: React.FC<TabProps> = ({
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <span className="text-sm text-foreground truncate overflow-hidden whitespace-nowrap text-ellipsis">
+              <span 
+                className="text-sm text-foreground block overflow-hidden whitespace-nowrap text-ellipsis"
+                style={{ maxWidth: '100px' }}
+                title={doc?.name ?? tab.title}
+              >
                 {doc?.name ?? tab.title}
               </span>
             )}
@@ -584,11 +588,11 @@ const TabBar: React.FC<TabBarProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex-1 min-w-0 overflow-hidden" style={{ maxWidth: 'calc(100vw - 600px)' }}>
+      <div className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden" style={{ maxWidth: 'calc(100vw - 400px)' }}>
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex min-w-0 overflow-hidden">
+            <div className="flex" style={{ minWidth: 'max-content' }}>
               {tabs.map((tab) => (
                 <SortableTab key={tab.id} tab={tab} />
               ))}
