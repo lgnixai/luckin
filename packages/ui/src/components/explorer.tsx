@@ -318,6 +318,7 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
   const handleSelect = async (nodeId: string) => {
     setSelectedNode(nodeId);
     const node = nodesById[nodeId];
+    console.log(node)
     if (node && node.type === 'file') {
       const fileInfo = openFileInEditor(nodeId);
       if (fileInfo) {
