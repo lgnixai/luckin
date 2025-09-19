@@ -1,0 +1,135 @@
+name: Plugin MCP Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'plugins/**'
+      - 'packages/ui/src/components/plugin-content-renderer.tsx'
+      - 'apps/web/vite.config.ts'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'plugins/**'
+      - 'packages/ui/src/components/plugin-content-renderer.tsx'
+      - 'apps/web/vite.config.ts'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  plugin-tests:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9.7.0
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Build packages
+      run: pnpm build
+
+    - name: Start development server
+      run: |
+        pnpm dev &
+        echo "DEV_SERVER_PID=$!" >> $GITHUB_ENV
+        # Wait for server to start
+        timeout 60 bash -c 'until curl -f http://localhost:3001/ > /dev/null 2>&1; do sleep 2; done' || (
+          echo "Development server failed to start"
+          curl -v http://localhost:3001/ || true
+          exit 1
+        )
+
+    - name: Run Plugin MCP Tests
+      run: pnpm test:plugins
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: plugin-test-results-node-${{ matrix.node-version }}
+        path: test-results/
+        retention-days: 30
+
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = './test-results/mcp-plugin-test-report.json';
+          
+          if (fs.existsSync(path)) {
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const { summary } = report;
+            
+            const successRate = summary.successRate;
+            const emoji = successRate === 100 ? '🎉' : successRate >= 80 ? '✅' : '⚠️';
+            
+            const body = `## ${emoji} Plugin MCP Test Results (Node.js ${{ matrix.node-version }})
+            
+**Summary:**
+- 📦 Total Plugins: ${summary.totalPlugins}
+- ✅ Successful: ${summary.successfulPlugins}
+- ❌ Failed: ${summary.failedPlugins}
+- 📈 Success Rate: ${summary.successRate}%
+
+**Test Details:**
+${report.results.map(result => 
+  `### ${result.pluginName} ${result.success ? '✅' : '❌'}
+${result.tests.map(test => `- ${test.success ? '✅' : '❌'} ${test.name}: ${test.details}`).join('\n')}
+${result.errors.length > 0 ? `\n**Errors:**\n${result.errors.map(e => `- ${e}`).join('\n')}` : ''}`
+).join('\n\n')}
+
+<details>
+<summary>📄 Full Report JSON</summary>
+
+\`\`\`json
+${JSON.stringify(report, null, 2)}
+\`\`\`
+
+</details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          }
+
+    - name: Stop development server
+      if: always()
+      run: |
+        if [ ! -z "$DEV_SERVER_PID" ]; then
+          kill $DEV_SERVER_PID || true
+        fi
+        pkill -f "vite" || true
+        pkill -f "turbo" || true
