@@ -146,9 +146,9 @@ const Tab: React.FC<TabProps> = ({
               : "bg-tab-inactive hover:bg-tab-hover"
           )}
           style={{ 
-            minWidth: '80px',
-            maxWidth: '200px',
-            flex: '0 0 120px'
+            minWidth: '60px',
+            maxWidth: '150px',
+            flex: '1 1 0'
           }}
         >
           {/* Tab content (drag handle area) */}
@@ -592,7 +592,7 @@ const TabBar: React.FC<TabBarProps> = ({
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex" style={{ minWidth: 'max-content' }}>
+            <div className="flex">
               {tabs.map((tab) => (
                 <SortableTab key={tab.id} tab={tab} />
               ))}
