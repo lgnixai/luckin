@@ -616,7 +616,7 @@ const TabBar: React.FC<TabBarProps> = ({
               {/* Add-tab button follows the last tab */}
               <div 
                 onClick={onAddTab}
-                className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0 cursor-pointer"
+                className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground cursor-pointer"
                 title="新建标签页 (Ctrl+T)"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
