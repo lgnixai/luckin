@@ -12,7 +12,7 @@ const puppeteer = require('puppeteer');
 
 class PluginMCPTester {
   constructor() {
-    this.baseUrl = 'http://localhost:3001'; // 实际的开发服务器端口
+    this.baseUrl = 'http://localhost:3000'; // 实际的开发服务器端口
     this.pluginsDir = path.join(__dirname, '../plugins');
     this.testResults = [];
   }
@@ -54,7 +54,7 @@ class PluginMCPTester {
       const http = require('http');
       const options = {
         hostname: 'localhost',
-        port: 3001,
+        port: 3000,
         path: '/',
         method: 'GET',
         timeout: 5000
