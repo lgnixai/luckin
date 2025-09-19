@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, MoreHorizontal, Edit, Trash2, Move, FilePlus, FolderPlus, Calendar, Zap, FileTemplate } from 'lucide-react';
+import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, MoreHorizontal, Edit, Trash2, Move, FilePlus, FolderPlus, Calendar, Zap, FileText } from 'lucide-react';
 import type { ITreeNode } from '@lgnixai/luckin-types';
 import { ContextMenu } from "@/components/context-menu";
 import { useEditorService } from '@lgnixai/luckin-core';
@@ -420,7 +420,7 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
                   setSelectedNode(fileId);
                   setExpandedNodes(prev => new Set([...prev, rootId]));
                 }}>
-                  <FileTemplate className="w-4 h-4 mr-2" />
+                  <FileText className="w-4 h-4 mr-2" />
                   会议模板
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
@@ -428,7 +428,7 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
                   setSelectedNode(fileId);
                   setExpandedNodes(prev => new Set([...prev, rootId]));
                 }}>
-                  <FileTemplate className="w-4 h-4 mr-2" />
+                  <FileText className="w-4 h-4 mr-2" />
                   项目模板
                 </DropdownMenuItem>
               </DropdownMenuContent>

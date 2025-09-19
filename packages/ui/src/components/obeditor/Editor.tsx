@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Editor as MonacoEditor } from '@monaco-editor/react';
 import { useDocuments } from '@/stores/documents';
 import type { editor } from 'monaco-editor';
+import { KeyMod, KeyCode } from 'monaco-editor';
 
 interface EditorProps {
   className?: string;
@@ -38,17 +39,17 @@ const Editor: React.FC<EditorProps> = ({
     editorRef.current = editor;
     
     // 添加自定义快捷键
-    editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyK, () => {
+    editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyK, () => {
       // Ctrl/Cmd + K: 快速搜索
       editor.trigger('', 'actions.find', {});
     });
 
-    editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyD, () => {
+    editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyD, () => {
       // Ctrl/Cmd + D: 选择下一个相同的词
       editor.trigger('', 'editor.action.addSelectionToNextFindMatch', {});
     });
 
-    editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyMod.Shift | editor.KeyCode.KeyP, () => {
+    editor.addCommand(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP, () => {
       // Ctrl/Cmd + Shift + P: 命令面板
       editor.trigger('', 'editor.action.quickCommand', {});
     });
