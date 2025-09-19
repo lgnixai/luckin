@@ -60,8 +60,6 @@ interface TabProps {
   onRevealInExplorer?: (id: string) => void;
   // Drag handle props for dnd-kit: apply only to the tab label area
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
-  // Dynamic max-width to support auto-shrinking when many tabs exist
-  maxWidth?: number;
 }
 
 const Tab: React.FC<TabProps> = ({ 
@@ -77,8 +75,7 @@ const Tab: React.FC<TabProps> = ({
   onRename,
   onCopyPath,
   onRevealInExplorer,
-  dragHandleProps,
-  maxWidth
+  dragHandleProps
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const { getDocument } = useDocuments();
@@ -150,8 +147,8 @@ const Tab: React.FC<TabProps> = ({
           )}
           style={{ 
             minWidth: '80px',
-            maxWidth: `${maxWidth}px`,
-            flex: `0 1 ${maxWidth}px`
+            maxWidth: '200px',
+            flex: '1 1 0'
           }}
         >
           {/* Tab content (drag handle area) */}
@@ -331,22 +328,8 @@ const TabBar: React.FC<TabBarProps> = ({
     navigateForward 
   } = useTabManager();
 
-  // Compute dynamic max width per tab to mimic Obsidian-like shrinking
-  // 根据可用空间和标签数量动态计算宽度
-  const computeMaxTabWidth = (count: number) => {
-    // 基础宽度：优先保证内容可读性
-    const baseWidth = 200;
-    const minWidth = 80;
-    
-    if (count <= 4) return baseWidth;
-    if (count <= 8) return Math.max(minWidth, baseWidth - (count - 4) * 15);
-    if (count <= 12) return Math.max(minWidth, 140 - (count - 8) * 10);
-    if (count <= 16) return Math.max(minWidth, 100 - (count - 12) * 5);
-    
-    // 当标签页非常多时，使用最小宽度
-    return minWidth;
-  };
-  const maxTabWidth = computeMaxTabWidth(tabs.length);
+  // 使用 CSS flexbox 自动分配，不需要复杂的 JS 计算
+  // 标签页会通过 flex: '1 1 0' 自动平均分配空间
 
   // Check if tabs should be stacked
   const needsStacking = shouldStackTabs(panelId || 'default', tabs.length);
@@ -476,7 +459,6 @@ const TabBar: React.FC<TabBarProps> = ({
           onCopyPath={onCopyPath}
           onRevealInExplorer={onRevealInExplorer}
           dragHandleProps={{ ...attributes, ...listeners }}
-          maxWidth={maxTabWidth}
         />
       </div>
     );
@@ -606,7 +588,7 @@ const TabBar: React.FC<TabBarProps> = ({
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex">
+            <div className="flex min-w-0 overflow-hidden">
               {tabs.map((tab) => (
                 <SortableTab key={tab.id} tab={tab} />
               ))}
