@@ -7,6 +7,7 @@ import { useDocuments } from '@/stores/documents';
 import { useTabManager } from '@/stores/tabManager';
 import { Layout, Save } from 'lucide-react';
 import { useFileTree } from '@/stores/filetree';
+import { useEditorBridge } from '@/stores/editorBridge';
 import useShortcuts from '@/hooks/useShortcuts';
 
 import type { PanelNode } from '@lgnixai/luckin-core';
@@ -26,7 +27,7 @@ import {
 // }
 
 const ObsidianLayout: React.FC = () => {
-  const { createDocument, renameDocument } = useDocuments();
+  const { createDocument, renameDocument, setDocumentPath } = useDocuments();
   const { loadWorkspaceLayout: _loadWorkspaceLayout } = useTabManager();
   const [showWorkspaceManager, setShowWorkspaceManager] = useState(false);
   const [panelTree, setPanelTree] = useState<PanelNode>({
@@ -48,7 +49,9 @@ const ObsidianLayout: React.FC = () => {
     ]
   });
 
-  const { rootId, listChildren, createFile, createFolder, nodesById } = useFileTree();
+  const { rootId, createFile, nodesById, findNodeByDocumentId, renameNode, getPath, currentFolderId, linkDocument } = useFileTree();
+  const fileTreeStore = useFileTree();
+  const { openNonce, lastOpen } = useEditorBridge();
   const [lastActivePanelId, setLastActivePanelId] = useState<string>('left');
 
   // Workspace management handlers
@@ -79,6 +82,14 @@ const ObsidianLayout: React.FC = () => {
       return clone;
     });
   }, [createDocument]);
+
+  // 监听 Explorer 发来的“打开文档”请求，并在当前面板打开
+  useEffect(() => {
+    if (!lastOpen) return;
+    const { docId, title, filePath } = lastOpen;
+    openDocumentInTargetPanel(docId, title, filePath);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openNonce]);
 
   const findPanelById = useCallback((tree: PanelNode, id: string): PanelNode | null => {
     return findNodeByIdCore(tree, id);
@@ -167,6 +178,11 @@ const ObsidianLayout: React.FC = () => {
     const newTabs = panel.tabs.map((tab: any) => {
       if (tab.id === id) {
         if (tab.documentId) renameDocument(tab.documentId, newTitle);
+        // 同步重命名文件树中的节点
+        try {
+          const fileNode = fileTreeStore.findNodeByDocumentId(tab.documentId);
+          if (fileNode) fileTreeStore.renameNode(fileNode.id, newTitle);
+        } catch {}
         return { ...tab, title: newTitle };
       }
       return tab;
@@ -299,6 +315,14 @@ const ObsidianLayout: React.FC = () => {
     if (!panel?.tabs) return;
 
     const documentId = createDocument('新标签页', { content: '', language: 'markdown' });
+    // 在当前选中文件夹（或根目录）创建一个文件，并与该文档绑定
+    try {
+      const parentId = fileTreeStore.currentFolderId || rootId;
+      const fileId = fileTreeStore.createFile(parentId, '新标签页.md', documentId);
+      fileTreeStore.linkDocument(fileId, documentId);
+      const path = fileTreeStore.getPath(fileId);
+      setDocumentPath(documentId, path);
+    } catch {}
     const newTab = {
       id: Date.now().toString(),
       title: '新标签页',
