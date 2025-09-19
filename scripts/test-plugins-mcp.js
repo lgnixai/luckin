@@ -12,7 +12,7 @@ const puppeteer = require('puppeteer');
 
 class PluginMCPTester {
   constructor() {
-    this.baseUrl = 'http://localhost:3000'; // 实际的开发服务器端口
+    this.baseUrl = 'http://localhost:8080'; // Go后端服务器端口
     this.pluginsDir = path.join(__dirname, '../plugins');
     this.testResults = [];
   }
@@ -54,8 +54,8 @@ class PluginMCPTester {
       const http = require('http');
       const options = {
         hostname: 'localhost',
-        port: 3000,
-        path: '/',
+        port: 8080,
+        path: '/healthz',
         method: 'GET',
         timeout: 5000
       };
@@ -109,7 +109,7 @@ class PluginMCPTester {
       });
 
       // 1. 测试插件URL可访问性
-      const pluginUrl = `${this.baseUrl}/plugins/${plugin.dir}/index.html`;
+      const pluginUrl = `${this.baseUrl}/plugins/${plugin.dir}/`;
       console.log(`   📡 测试URL访问: ${pluginUrl}`);
       
       const response = await page.goto(pluginUrl, { 

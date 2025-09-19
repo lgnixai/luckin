@@ -27,6 +27,23 @@ type rpcError struct {
 
 func (h *PluginHost) StartHTTPServer(addr string) error {
 	mux := http.NewServeMux()
+	
+	// 添加CORS中间件
+	corsHandler := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+			
+			next.ServeHTTP(w, r)
+		})
+	}
+	
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte("ok"))
@@ -34,14 +51,19 @@ func (h *PluginHost) StartHTTPServer(addr string) error {
 	mux.HandleFunc("/events", h.handleSSE)
 	mux.HandleFunc("/rpc", h.handleRPC)
 	mux.HandleFunc("/market", h.handleMarket)
-	// Serve SDK and plugin static assets
+	
+	// Serve SDK and plugin static assets with CORS
 	sdkDir := filepath.Join(h.config.RootDir, "sdk")
 	webDir := filepath.Join(h.config.RootDir, "web")
-	mux.Handle("/sdk/", http.StripPrefix("/sdk/", http.FileServer(http.Dir(sdkDir))))
-	mux.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir(h.config.PluginsDir))))
-	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir(webDir))))
+	mux.Handle("/sdk/", corsHandler(http.StripPrefix("/sdk/", http.FileServer(http.Dir(sdkDir)))))
+	mux.Handle("/plugins/", corsHandler(http.StripPrefix("/plugins/", http.FileServer(http.Dir(h.config.PluginsDir)))))
+	mux.Handle("/web/", corsHandler(http.StripPrefix("/web/", http.FileServer(http.Dir(webDir)))))
+	
 	log.Printf("HTTP server listening on %s", addr)
-	return http.ListenAndServe(addr, mux)
+	log.Printf("Serving plugins from: %s", h.config.PluginsDir)
+	log.Printf("Serving SDK from: %s", sdkDir)
+	
+	return http.ListenAndServe(addr, corsHandler(mux))
 }
 
 func (h *PluginHost) handleRPC(w http.ResponseWriter, r *http.Request) {
