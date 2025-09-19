@@ -32,7 +32,7 @@ import {
   Globe
 } from 'lucide-react';
 import type { IPlugin } from '@lgnixai/luckin-types';
-import { useLayoutStore } from '@lgnixai/luckin-core';
+import { useLayoutStore, GreenserverPluginService } from '@lgnixai/luckin-core';
 
 // 临时导入 PluginState 枚举定义
 enum PluginState {
@@ -90,14 +90,37 @@ export interface ExtensionManagerProps {
   className?: string;
 }
 
-// 插件服务接口（模拟）
+// 插件服务接口（基于Greenserver）
 class PluginService {
+  private greenserverService: InstanceType<typeof GreenserverPluginService>;
   private plugins: Map<string, IExtendedPlugin> = new Map();
   private installedPlugins: Set<string> = new Set();
 
-  // 模拟数据
   constructor() {
+    this.greenserverService = new GreenserverPluginService('http://localhost:6066');
     this.initializeMockData();
+  }
+
+  private convertToExtendedPlugin(plugin: IPlugin): IExtendedPlugin {
+    return {
+      ...plugin,
+      downloadCount: 0,
+      rating: 0,
+      reviewCount: 0,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      size: 'Unknown',
+      category: PluginCategory.Other,
+      source: PluginSource.Community,
+      isInstalling: false,
+      isUninstalling: false,
+      hasUpdate: false,
+      updateVersion: undefined,
+      context: {} as any,
+      exports: {},
+      activate: plugin.activate,
+      dispose: plugin.dispose,
+      onDidChangeState: plugin.onDidChangeState
+    };
   }
 
   private initializeMockData() {
@@ -227,7 +250,16 @@ class PluginService {
   }
 
   async getInstalledPlugins(): Promise<IExtendedPlugin[]> {
-    return Array.from(this.installedPlugins).map(id => this.plugins.get(id)!).filter(Boolean);
+    try {
+      await this.greenserverService.initialize();
+      const plugins = await this.greenserverService.getInstalledPlugins();
+      
+      return plugins.map(plugin => this.convertToExtendedPlugin(plugin));
+    } catch (error) {
+      console.error('Failed to load plugins from Greenserver:', error);
+      // 回退到模拟数据
+      return Array.from(this.installedPlugins).map(id => this.plugins.get(id)!).filter(Boolean);
+    }
   }
 
   async searchPlugins(query: string, category?: PluginCategory): Promise<IExtendedPlugin[]> {
@@ -242,40 +274,71 @@ class PluginService {
   }
 
   async installPlugin(pluginId: string): Promise<void> {
-    const plugin = this.plugins.get(pluginId);
-    if (plugin) {
-      plugin.isInstalling = true;
-      // 模拟安装过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      plugin.isInstalling = false;
-      plugin.state = PluginState.Loaded;
-      this.installedPlugins.add(pluginId);
+    try {
+      // 从市场搜索插件信息
+      const marketPlugins = await this.searchPlugins(pluginId);
+      const plugin = marketPlugins.find(p => p.id === pluginId);
+      
+      if (plugin) {
+        plugin.isInstalling = true;
+        
+        // 使用Greenserver API安装插件
+        await this.greenserverService.installPlugin(`http://example.com/plugins/${pluginId}.zip`);
+        
+        plugin.isInstalling = false;
+        (plugin as any).state = PluginState.Loaded;
+        this.installedPlugins.add(pluginId);
+      }
+    } catch (error) {
+      console.error('Failed to install plugin:', error);
+      throw error;
     }
   }
 
   async uninstallPlugin(pluginId: string): Promise<void> {
-    const plugin = this.plugins.get(pluginId);
-    if (plugin) {
-      plugin.isUninstalling = true;
-      // 模拟卸载过程
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      plugin.isUninstalling = false;
-      plugin.state = PluginState.Unloaded;
-      this.installedPlugins.delete(pluginId);
+    try {
+      const plugin = this.plugins.get(pluginId);
+      if (plugin) {
+        plugin.isUninstalling = true;
+        
+        // 使用Greenserver API卸载插件
+        await this.greenserverService.uninstallPlugin(pluginId);
+        
+        plugin.isUninstalling = false;
+        (plugin as any).state = PluginState.Unloaded;
+        this.installedPlugins.delete(pluginId);
+      }
+    } catch (error) {
+      console.error('Failed to uninstall plugin:', error);
+      throw error;
     }
   }
 
   async enablePlugin(pluginId: string): Promise<void> {
-    const plugin = this.plugins.get(pluginId);
-    if (plugin && this.installedPlugins.has(pluginId)) {
-      plugin.state = PluginState.Active;
+    try {
+      await this.greenserverService.enablePlugin(pluginId);
+      
+      const plugin = this.plugins.get(pluginId);
+      if (plugin && this.installedPlugins.has(pluginId)) {
+        (plugin as any).state = PluginState.Active;
+      }
+    } catch (error) {
+      console.error('Failed to enable plugin:', error);
+      throw error;
     }
   }
 
   async disablePlugin(pluginId: string): Promise<void> {
-    const plugin = this.plugins.get(pluginId);
-    if (plugin && this.installedPlugins.has(pluginId)) {
-      plugin.state = PluginState.Loaded;
+    try {
+      await this.greenserverService.disablePlugin(pluginId);
+      
+      const plugin = this.plugins.get(pluginId);
+      if (plugin && this.installedPlugins.has(pluginId)) {
+        (plugin as any).state = PluginState.Loaded;
+      }
+    } catch (error) {
+      console.error('Failed to disable plugin:', error);
+      throw error;
     }
   }
 
@@ -285,7 +348,7 @@ class PluginService {
       plugin.isInstalling = true;
       await new Promise(resolve => setTimeout(resolve, 2500));
       plugin.isInstalling = false;
-      plugin.manifest.version = plugin.updateVersion || plugin.manifest.version;
+      (plugin.manifest as any).version = plugin.updateVersion || plugin.manifest.version;
       plugin.hasUpdate = false;
       plugin.updateVersion = undefined;
     }
