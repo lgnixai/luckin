@@ -55,7 +55,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({ className, children }) => 
         {/* Main content: 左侧为“编辑器+底部Panel”的纵向列，右侧为辅助栏 */}
         <div className="flex flex-1">
           {/* 编辑器列 */}
-          <div className="flex flex-1 flex-col min-w-0 relative z-[1]">
+          <div className="flex flex-col min-w-0 relative z-[1]" style={{ flex: '1 1 0', maxWidth: 'calc(100vw - 600px)' }}>
             <div className="flex flex-1 min-h-0">
               <ObsidianEditor />
             </div>
