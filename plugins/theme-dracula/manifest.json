@@ -1,0 +1,39 @@
+{
+  "id": "theme-dracula",
+  "name": "Dracula Official",
+  "version": "2.24.2",
+  "description": "Official Dracula Theme. A dark theme for many editors, shells, and more.",
+  "author": "dracula-theme",
+  "license": "MIT",
+  "entrypoints": {
+    "frontend": "index.html"
+  },
+  "contributes": {
+    "activitybar": {
+      "id": "theme-dracula",
+      "title": "Dracula Theme",
+      "icon": "🧛",
+      "order": 200
+    },
+    "themes": [
+      {
+        "id": "dracula",
+        "label": "Dracula",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dracula-color-theme.json"
+      }
+    ]
+  },
+  "permissions": [
+    "themes"
+  ],
+  "engines": {
+    "luckin": "^3.0.0"
+  },
+  "keywords": [
+    "theme",
+    "dark",
+    "dracula",
+    "color-theme"
+  ]
+}

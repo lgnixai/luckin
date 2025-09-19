@@ -26,8 +26,9 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
       setError(null);
 
       try {
-        // 根据插件ID构建插件内容URL
-        const pluginUrl = `/plugins/${pluginId}/index.html`;
+        // 根据插件ID构建插件内容URL，使用绝对URL确保正确加载
+        const baseUrl = window.location.origin;
+        const pluginUrl = `${baseUrl}/plugins/${pluginId}/index.html`;
         
         if (iframeRef.current) {
           iframeRef.current.src = pluginUrl;
