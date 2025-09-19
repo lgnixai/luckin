@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "Example",
   "description": "Demo plugin manifest",
-  "entrypoints": {"frontend": "sdk://example/hello"},
+  "entrypoints": {"frontend": "frontend-demo.html"},
   "permissions": ["vault.read", "vault.write"]
 }
 

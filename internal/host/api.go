@@ -1,9 +1,10 @@
 package host
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+    "encoding/json"
+    "log"
+    "net/http"
+    "path/filepath"
 )
 
 type rpcRequest struct {
@@ -32,6 +33,10 @@ func (h *PluginHost) StartHTTPServer(addr string) error {
 	})
     mux.HandleFunc("/events", h.handleSSE)
 	mux.HandleFunc("/rpc", h.handleRPC)
+    // Serve SDK and plugin static assets
+    sdkDir := filepath.Join(h.config.RootDir, "sdk")
+    mux.Handle("/sdk/", http.StripPrefix("/sdk/", http.FileServer(http.Dir(sdkDir))))
+    mux.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir(h.config.PluginsDir))))
 	log.Printf("HTTP server listening on %s", addr)
 	return http.ListenAndServe(addr, mux)
 }
@@ -47,19 +52,20 @@ func (h *PluginHost) handleRPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch req.Method {
-	case "host.getPlugins":
-		type pluginInfo struct {
-			ID      string `json:"id"`
-			Name    string `json:"name"`
-			Version string `json:"version"`
-		}
-		h.pluginsMu.RLock()
-		infos := make([]pluginInfo, 0, len(h.plugins))
-		for _, p := range h.plugins {
-			infos = append(infos, pluginInfo{ID: p.Manifest.ID, Name: p.Manifest.Name, Version: p.Manifest.Version})
-		}
-		h.pluginsMu.RUnlock()
-		writeRPCResult(w, req.ID, infos)
+    case "host.getPlugins":
+        type pluginInfo struct {
+            ID          string       `json:"id"`
+            Name        string       `json:"name"`
+            Version     string       `json:"version"`
+            Entrypoints *Entrypoints `json:"entrypoints,omitempty"`
+        }
+        h.pluginsMu.RLock()
+        infos := make([]pluginInfo, 0, len(h.plugins))
+        for _, p := range h.plugins {
+            infos = append(infos, pluginInfo{ID: p.Manifest.ID, Name: p.Manifest.Name, Version: p.Manifest.Version, Entrypoints: p.Manifest.Entrypoints})
+        }
+        h.pluginsMu.RUnlock()
+        writeRPCResult(w, req.ID, infos)
 	case "vault.list":
 		if !h.hasPermission(req.PluginID, "vault.read") {
 			writeRPCError(w, req.ID, 403, "missing permission: vault.read")
