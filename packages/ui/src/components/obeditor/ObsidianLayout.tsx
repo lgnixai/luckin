@@ -354,7 +354,7 @@ const ObsidianLayout: React.FC = () => {
   const renderPanelNode = useCallback((node: PanelNode): React.ReactElement => {
     if (node.type === 'leaf' && node.tabs) {
       return (
-        <div className="h-full w-full flex flex-col overflow-hidden min-w-0">
+        <div className="h-full flex flex-col overflow-hidden min-w-0" style={{ width: '100%', maxWidth: 'calc(100vw - 300px)' }}>
           <div className="flex-shrink-0">
             <TabBar
               tabs={node.tabs}
