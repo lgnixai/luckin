@@ -27,23 +27,23 @@ type rpcError struct {
 
 func (h *PluginHost) StartHTTPServer(addr string) error {
 	mux := http.NewServeMux()
-	
+
 	// 添加CORS中间件
 	corsHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			
+
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusOK)
 				return
 			}
-			
+
 			next.ServeHTTP(w, r)
 		})
 	}
-	
+
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte("ok"))
@@ -51,18 +51,18 @@ func (h *PluginHost) StartHTTPServer(addr string) error {
 	mux.HandleFunc("/events", h.handleSSE)
 	mux.HandleFunc("/rpc", h.handleRPC)
 	mux.HandleFunc("/market", h.handleMarket)
-	
+
 	// Serve SDK and plugin static assets with CORS
 	sdkDir := filepath.Join(h.config.RootDir, "sdk")
 	webDir := filepath.Join(h.config.RootDir, "web")
 	mux.Handle("/sdk/", corsHandler(http.StripPrefix("/sdk/", http.FileServer(http.Dir(sdkDir)))))
 	mux.Handle("/plugins/", corsHandler(http.StripPrefix("/plugins/", http.FileServer(http.Dir(h.config.PluginsDir)))))
 	mux.Handle("/web/", corsHandler(http.StripPrefix("/web/", http.FileServer(http.Dir(webDir)))))
-	
+
 	log.Printf("HTTP server listening on %s", addr)
 	log.Printf("Serving plugins from: %s", h.config.PluginsDir)
 	log.Printf("Serving SDK from: %s", sdkDir)
-	
+
 	return http.ListenAndServe(addr, corsHandler(mux))
 }
 
@@ -77,29 +77,29 @@ func (h *PluginHost) handleRPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch req.Method {
-    case "host.getPlugins":
-        type pluginInfo struct {
-            ID          string       `json:"id"`
-            Name        string       `json:"name"`
-            Version     string       `json:"version"`
-            Enabled     bool         `json:"enabled"`
-            Entrypoints *Entrypoints `json:"entrypoints,omitempty"`
-            BackupPath  string       `json:"backupPath,omitempty"`
-        }
-        h.pluginsMu.RLock()
-        infos := make([]pluginInfo, 0, len(h.plugins))
-        for _, p := range h.plugins {
-            infos = append(infos, pluginInfo{
-                ID: p.Manifest.ID, 
-                Name: p.Manifest.Name, 
-                Version: p.Manifest.Version, 
-                Enabled: p.Enabled,
-                Entrypoints: p.Manifest.Entrypoints,
-                BackupPath: p.BackupPath,
-            })
-        }
-        h.pluginsMu.RUnlock()
-        writeRPCResult(w, req.ID, infos)
+	case "host.getPlugins":
+		type pluginInfo struct {
+			ID          string       `json:"id"`
+			Name        string       `json:"name"`
+			Version     string       `json:"version"`
+			Enabled     bool         `json:"enabled"`
+			Entrypoints *Entrypoints `json:"entrypoints,omitempty"`
+			BackupPath  string       `json:"backupPath,omitempty"`
+		}
+		h.pluginsMu.RLock()
+		infos := make([]pluginInfo, 0, len(h.plugins))
+		for _, p := range h.plugins {
+			infos = append(infos, pluginInfo{
+				ID:          p.Manifest.ID,
+				Name:        p.Manifest.Name,
+				Version:     p.Manifest.Version,
+				Enabled:     p.Enabled,
+				Entrypoints: p.Manifest.Entrypoints,
+				BackupPath:  p.BackupPath,
+			})
+		}
+		h.pluginsMu.RUnlock()
+		writeRPCResult(w, req.ID, infos)
 	case "vault.list":
 		if !h.hasPermission(req.PluginID, "vault.read") {
 			writeRPCError(w, req.ID, 403, "missing permission: vault.read")
@@ -199,43 +199,55 @@ func (h *PluginHost) handleRPC(w http.ResponseWriter, r *http.Request) {
 		if h.installManager == nil {
 			writeRPCResult(w, req.ID, nil)
 			return
-        }
-        status := h.installManager.GetInstallationStatus(p.PluginID)
-        writeRPCResult(w, req.ID, status)
-    case "host.enablePlugin":
-        var p struct{ PluginID string `json:"pluginId"` }
-        if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
-            writeRPCError(w, req.ID, 400, "missing pluginId")
-            return
-        }
-        if err := h.enablePlugin(p.PluginID); err != nil {
-            writeRPCError(w, req.ID, 404, err.Error())
-            return
-        }
-        writeRPCResult(w, req.ID, struct{ Ok bool `json:"ok"` }{Ok: true})
-    case "host.disablePlugin":
-        var p struct{ PluginID string `json:"pluginId"` }
-        if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
-            writeRPCError(w, req.ID, 400, "missing pluginId")
-            return
-        }
-        if err := h.disablePlugin(p.PluginID); err != nil {
-            writeRPCError(w, req.ID, 404, err.Error())
-            return
-        }
-        writeRPCResult(w, req.ID, struct{ Ok bool `json:"ok"` }{Ok: true})
-    case "host.backupPlugin":
-        var p struct{ PluginID string `json:"pluginId"` }
-        if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
-            writeRPCError(w, req.ID, 400, "missing pluginId")
-            return
-        }
-        backupPath, err := h.backupPlugin(p.PluginID)
-        if err != nil {
-            writeRPCError(w, req.ID, 500, err.Error())
-            return
-        }
-        writeRPCResult(w, req.ID, struct{ BackupPath string `json:"backupPath"` }{BackupPath: backupPath})
+		}
+		status := h.installManager.GetInstallationStatus(p.PluginID)
+		writeRPCResult(w, req.ID, status)
+	case "host.enablePlugin":
+		var p struct {
+			PluginID string `json:"pluginId"`
+		}
+		if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
+			writeRPCError(w, req.ID, 400, "missing pluginId")
+			return
+		}
+		if err := h.enablePlugin(p.PluginID); err != nil {
+			writeRPCError(w, req.ID, 404, err.Error())
+			return
+		}
+		writeRPCResult(w, req.ID, struct {
+			Ok bool `json:"ok"`
+		}{Ok: true})
+	case "host.disablePlugin":
+		var p struct {
+			PluginID string `json:"pluginId"`
+		}
+		if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
+			writeRPCError(w, req.ID, 400, "missing pluginId")
+			return
+		}
+		if err := h.disablePlugin(p.PluginID); err != nil {
+			writeRPCError(w, req.ID, 404, err.Error())
+			return
+		}
+		writeRPCResult(w, req.ID, struct {
+			Ok bool `json:"ok"`
+		}{Ok: true})
+	case "host.backupPlugin":
+		var p struct {
+			PluginID string `json:"pluginId"`
+		}
+		if err := json.Unmarshal(req.Params, &p); err != nil || p.PluginID == "" {
+			writeRPCError(w, req.ID, 400, "missing pluginId")
+			return
+		}
+		backupPath, err := h.backupPlugin(p.PluginID)
+		if err != nil {
+			writeRPCError(w, req.ID, 500, err.Error())
+			return
+		}
+		writeRPCResult(w, req.ID, struct {
+			BackupPath string `json:"backupPath"`
+		}{BackupPath: backupPath})
 	default:
 		writeRPCError(w, req.ID, 404, "unknown method")
 	}

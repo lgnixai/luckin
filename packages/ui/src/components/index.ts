@@ -25,3 +25,4 @@ export { CommandPalette } from './command-palette';
 export { SearchView } from './search-view';
 export { ExtensionManager } from './extension-manager';
 export { PluginContentRenderer } from './plugin-content-renderer';
+export { ToastContainer, useToastStore } from './toast-notification';

@@ -12,6 +12,7 @@ import { MenuBar } from '@/components/menu-bar';
 import { AuxiliaryPane } from '@/components/auxiliary-pane';
 import { ResizablePanel } from '@/components/resizable-panel';
 import { ResizableBottomPanel } from '@/components/resizable-bottom-panel';
+import { ToastContainer } from '@/components/toast-notification';
 
 export interface WorkbenchProps {
   className?: string;
@@ -95,6 +96,9 @@ export const Workbench: React.FC<WorkbenchProps> = ({ className, children }) => 
           <StatusBar />
         </div>
       )}
+      
+      {/* Toast通知容器 - 最高层级，右下角显示 */}
+      <ToastContainer />
       
       {children}
     </div>

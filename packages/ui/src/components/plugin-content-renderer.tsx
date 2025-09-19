@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../lib/utils';
 import { Alert, AlertDescription } from './ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { useNotificationService, useCommandService } from '@lgnixai/luckin-core';
+import { useCommandService } from '@lgnixai/luckin-core';
+import { useNotificationService } from '@lgnixai/luckin-core-legacy';
+import { useToastStore } from './toast-notification';
 
 export interface PluginContentRendererProps {
   pluginId: string;
@@ -16,8 +18,9 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addNotification, togglePalette, execute } = useCommandService();
-  const { addNotification: addToast } = useNotificationService();
+  const { togglePalette, execute } = useCommandService();
+  const { addNotification } = useNotificationService();
+  const { addToast } = useToastStore();
   const requestIdRef = useRef<number>(0);
 
   useEffect(() => {
@@ -129,10 +132,24 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
             (async () => {
               switch (method) {
                 case 'notifications.show': {
-                  const { type = 'info', title, message } = params || {};
-                  const value = [title, message].filter(Boolean).join(' ');
+                  const { type = 'info', title, message, duration } = params || {};
                   try {
-                    addToast({ id: `${pluginId}-${Date.now()}`, value, type });
+                    // 显示系统级toast通知（右下角）
+                    addToast({
+                      title: title || '插件通知',
+                      message: message || '来自插件的消息',
+                      type: type as 'info' | 'success' | 'warning' | 'error',
+                      duration: duration || 2000 // 默认2秒自动关闭
+                    });
+                    
+                    // 同时添加到通知中心（保留历史记录）
+                    const value = [title, message].filter(Boolean).join(': ');
+                    addNotification({ 
+                      id: `${pluginId}-${Date.now()}`, 
+                      value: value || message || title || '插件通知', 
+                      type: type as 'info' | 'success' | 'warning' | 'error'
+                    });
+                    
                     respond({ ok: true });
                   } catch (e: any) {
                     respondError(e?.message || 'failed to show notification');
