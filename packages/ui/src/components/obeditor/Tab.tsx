@@ -151,10 +151,7 @@ const Tab: React.FC<TabProps> = ({
           style={{ 
             minWidth: '80px',
             maxWidth: `${maxWidth}px`,
-            width: `${maxWidth}px`,
-            flexShrink: 1,
-            flexGrow: 0,
-            flexBasis: 'auto'
+            flex: `0 1 ${maxWidth}px`
           }}
         >
           {/* Tab content (drag handle area) */}

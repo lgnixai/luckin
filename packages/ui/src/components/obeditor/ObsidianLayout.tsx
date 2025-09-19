@@ -443,10 +443,8 @@ const ObsidianLayout: React.FC = () => {
       </div>
       
       {/* Main content */}
-      <div className="flex-1 flex min-h-0 overflow-hidden">        
-        <div className="flex-1 min-w-0 overflow-hidden">
-          {renderPanelNode(panelTree)}
-        </div>
+      <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
+        {renderPanelNode(panelTree)}
       </div>
       
       {/* Workspace Manager */}
