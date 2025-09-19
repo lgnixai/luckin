@@ -18,27 +18,55 @@ const Editor: React.FC<EditorProps> = ({
   fallbackLanguage = 'markdown',
   fallbackValue = ''
 }) => {
-  const { getDocument, updateDocumentContent } = useDocuments();
+  const { getDocument, updateDocumentContent, markDocumentClean, saveDocument } = useDocuments();
   const doc = useMemo(() => getDocument(documentId), [getDocument, documentId]);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [isVimMode, setIsVimMode] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
+  const [lastSavedContent, setLastSavedContent] = useState<string>('');
 
   const handleChange = useCallback((val?: string) => {
     if (doc?.id) {
-      updateDocumentContent(doc.id, val ?? '');
+      const content = val ?? '';
+      updateDocumentContent(doc.id, content);
+      
       // 更新字数统计
-      const text = val ?? '';
-      const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+      const words = content.trim().split(/\s+/).filter(word => word.length > 0);
       setWordCount(words.length);
+      
+      // 实时自动保存 - 文档状态已经通过store自动保存
+      // 这里可以添加额外的保存逻辑，如保存到服务器等
     }
   }, [doc?.id, updateDocumentContent]);
+
+  // 监听文档内容变化，实现自动保存
+  useEffect(() => {
+    if (doc?.content !== lastSavedContent && doc?.content !== undefined) {
+      setLastSavedContent(doc.content);
+    }
+  }, [doc?.content, lastSavedContent]);
+
+  // 添加保存快捷键 Ctrl+S
+  const handleSave = useCallback(() => {
+    if (doc?.id) {
+      saveDocument(doc.id);
+      setLastSavedContent(doc.content || '');
+      
+      // 显示保存成功提示（可选）
+      console.log(`Document "${doc.name}" saved successfully`);
+    }
+  }, [doc, saveDocument]);
 
   const handleEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
     
     // 添加自定义快捷键
+    editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => {
+      // Ctrl/Cmd + S: 保存文档
+      handleSave();
+    });
+
     editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyK, () => {
       // Ctrl/Cmd + K: 快速搜索
       editor.trigger('', 'actions.find', {});
@@ -66,7 +94,10 @@ const Editor: React.FC<EditorProps> = ({
     const initialText = editor.getValue();
     const words = initialText.trim().split(/\s+/).filter(word => word.length > 0);
     setWordCount(words.length);
-  }, []);
+    
+    // 设置初始保存状态
+    setLastSavedContent(initialText);
+  }, [handleSave]);
 
   // Obsidian风格的编辑器配置
   const editorOptions: editor.IStandaloneEditorConstructionOptions = {

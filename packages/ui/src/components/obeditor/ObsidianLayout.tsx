@@ -82,6 +82,46 @@ const ObsidianLayout: React.FC = () => {
     });
   }, [createDocument]);
 
+  // 监听文件树打开文件事件
+  useEffect(() => {
+    const handleFileTreeOpenFile = (event: CustomEvent) => {
+      const { documentId, title, filePath, nodeId } = event.detail;
+      
+      // 查找是否已有相同文档的标签页
+      const findExistingTab = (node: PanelNode): { panelId: string; tabId: string } | null => {
+        if (node.type === 'leaf' && node.tabs) {
+          const existingTab = node.tabs.find((tab: any) => tab.documentId === documentId);
+          if (existingTab) {
+            return { panelId: node.id, tabId: existingTab.id };
+          }
+        }
+        if (node.children) {
+          for (const child of node.children) {
+            const result = findExistingTab(child);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+
+      const existing = findExistingTab(panelTree);
+      
+      if (existing) {
+        // 激活已存在的标签页
+        handleActivateTab(existing.panelId)(existing.tabId);
+      } else {
+        // 创建新标签页
+        openDocumentInTargetPanel(documentId, title, filePath);
+      }
+    };
+
+    window.addEventListener('file-tree-open-file', handleFileTreeOpenFile as EventListener);
+    
+    return () => {
+      window.removeEventListener('file-tree-open-file', handleFileTreeOpenFile as EventListener);
+    };
+  }, [panelTree, handleActivateTab, openDocumentInTargetPanel]);
+
   const findPanelById = useCallback((tree: PanelNode, id: string): PanelNode | null => {
     return findNodeByIdCore(tree, id);
   }, []);

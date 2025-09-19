@@ -123,16 +123,36 @@ export const useFileTree = create<FileTreeState>()(
   }))
 );
 
-// Persist with debounce
+// Enhanced persistence with real-time saving
 if (typeof window !== 'undefined') {
   let timer: number | null = null;
+  let lastSavedState: string | null = null;
+  
   useFileTree.subscribe((state: FileTreeState) => {
     if (timer) window.clearTimeout(timer);
+    
+    // 更频繁的保存以实现实时效果
     timer = window.setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ rootId: state.rootId, nodesById: state.nodesById }));
-      } catch {}
-    }, 400);
+        const currentState = JSON.stringify({ rootId: state.rootId, nodesById: state.nodesById });
+        
+        // 只在状态真正改变时保存
+        if (currentState !== lastSavedState) {
+          localStorage.setItem(STORAGE_KEY, currentState);
+          lastSavedState = currentState;
+          
+          // 备份保存
+          localStorage.setItem(`${STORAGE_KEY}_backup`, JSON.stringify({
+            timestamp: Date.now(),
+            data: { rootId: state.rootId, nodesById: state.nodesById }
+          }));
+          
+          console.log('File tree auto-saved to localStorage');
+        }
+      } catch (error) {
+        console.error('Failed to save file tree:', error);
+      }
+    }, 200); // 减少延迟到200ms以实现更实时的保存
   });
 }
 
