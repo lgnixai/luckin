@@ -142,7 +142,7 @@ const Tab: React.FC<TabProps> = ({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group relative flex items-center min-w-0 h-8 flex-shrink-0",
+            "group relative flex items-center min-w-0 h-8",
             "border-r border-tab-border",
             tab.isActive 
               ? "bg-tab-active" 
@@ -150,9 +150,9 @@ const Tab: React.FC<TabProps> = ({
           )}
           style={maxWidth ? { 
             maxWidth: `${maxWidth}px`,
-            minWidth: '80px',  // 最小宽度确保可读性
-            width: `${Math.min(maxWidth, 200)}px`  // 固定宽度，不会随内容变化
-          } : { maxWidth: '200px', minWidth: '80px', width: '200px' }}
+            minWidth: '80px',
+            flex: `0 1 ${maxWidth}px` // 根据可用空间自动收缩，避免撑宽编辑器
+          } : { maxWidth: '200px', minWidth: '80px', flex: '0 1 200px' }}
         >
           {/* Tab content (drag handle area) */}
           <div 

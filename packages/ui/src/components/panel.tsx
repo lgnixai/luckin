@@ -106,7 +106,7 @@ export const Panel: React.FC<PanelProps> = ({ className }) => {
       <Tabs value={currentPanel} className="h-full flex flex-col">
         {/* 标签页头部 */}
         <div className="flex items-center justify-between border-b bg-muted/50">
-          <TabsList className="flex w-auto items-center gap-1 h-9 bg-transparent overflow-x-auto">
+          <TabsList className="flex w-full min-w-0 items-center gap-1 h-9 bg-transparent overflow-x-auto">
             {panels.map((panel) => (
               <TabsTrigger
                 key={panel.id}
