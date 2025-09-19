@@ -190,9 +190,9 @@ const Tab: React.FC<TabProps> = ({
           </div>
 
           {/* Close button */}
-          <button
+          <div
             className={cn(
-              "flex items-center justify-center w-5 h-5 mr-1",
+              "flex items-center justify-center w-5 h-5 mr-1 cursor-pointer",
               "opacity-0 group-hover:opacity-100 hover:bg-nav-hover rounded",
               "transition-opacity duration-150"
             )}
@@ -202,7 +202,7 @@ const Tab: React.FC<TabProps> = ({
             }}
           >
             <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
-          </button>
+          </div>
         </div>
       </ContextMenuTrigger>
 
@@ -497,12 +497,12 @@ const TabBar: React.FC<TabBarProps> = ({
       <div className="flex items-center bg-panel border-b border-border w-full flex-shrink-0">
         {/* Navigation controls */}
         <div className="flex items-center px-2 border-r border-border">
-          <button className="p-1 hover:bg-nav-hover rounded" onClick={handleBack}>
+          <div className="p-1 hover:bg-nav-hover rounded cursor-pointer" onClick={handleBack}>
             <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-          </button>
-          <button className="p-1 hover:bg-nav-hover rounded" onClick={handleForward}>
+          </div>
+          <div className="p-1 hover:bg-nav-hover rounded cursor-pointer" onClick={handleForward}>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
-          </button>
+          </div>
         </div>
 
         {/* Stacked tabs */}
@@ -527,32 +527,30 @@ const TabBar: React.FC<TabBarProps> = ({
             }}
           />
           {/* Plus follows the stacked tab */}
-          <button 
+          <div 
             onClick={onAddTab}
-            className="ml-1 mr-2 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground"
+            className="ml-1 mr-2 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground cursor-pointer"
             title="新建标签页 (Ctrl+T)"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-          </button>
+          </div>
         </div>
 
         {/* Controls */}
         <div className="flex items-center px-2 border-l border-border">
-          <button 
+          <div 
             onClick={() => setShowTabSearch(true)}
-            className="p-1 hover:bg-nav-hover rounded mr-1"
+            className="p-1 hover:bg-nav-hover rounded mr-1 cursor-pointer"
             title="搜索标签页 (Ctrl+P)"
           >
             <Search className="w-4 h-4 text-muted-foreground" />
-          </button>
+          </div>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-1 hover:bg-nav-hover rounded ml-1">
-                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-              </button>
+            <DropdownMenuTrigger className="p-1 hover:bg-nav-hover rounded ml-1">
+              <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-card border border-border shadow-dropdown">
               <DropdownMenuItem 
@@ -588,12 +586,12 @@ const TabBar: React.FC<TabBarProps> = ({
     <div className="flex items-center bg-panel border-b border-border w-full flex-shrink-0">
       {/* Navigation controls */}
       <div className="flex items-center px-2 border-r border-border">
-        <button className="p-1 hover:bg-nav-hover rounded" onClick={handleBack}>
+        <div className="p-1 hover:bg-nav-hover rounded cursor-pointer" onClick={handleBack}>
           <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-        </button>
-        <button className="p-1 hover:bg-nav-hover rounded" onClick={handleForward}>
+        </div>
+        <div className="p-1 hover:bg-nav-hover rounded cursor-pointer" onClick={handleForward}>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -607,35 +605,33 @@ const TabBar: React.FC<TabBarProps> = ({
               ))}
             </div>
             {/* Add-tab button follows the last tab */}
-            <button 
+            <div 
               onClick={onAddTab}
-              className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0"
+              className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground flex-shrink-0 cursor-pointer"
               title="新建标签页 (Ctrl+T)"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </button>
+            </div>
           </SortableContext>
         </DndContext>
       </div>
 
       {/* Controls */}
       <div className="flex items-center px-2 border-l border-border">
-        <button 
+        <div 
           onClick={() => setShowTabSearch(true)}
-          className="p-1 hover:bg-nav-hover rounded mr-1"
+          className="p-1 hover:bg-nav-hover rounded mr-1 cursor-pointer"
           title="搜索标签页 (Ctrl+P)"
         >
           <Search className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </div>
 
         {/* More options */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="p-1 hover:bg-nav-hover rounded ml-1">
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </button>
+          <DropdownMenuTrigger className="p-1 hover:bg-nav-hover rounded ml-1">
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-card border border-border shadow-dropdown">
             <DropdownMenuItem 
@@ -666,9 +662,9 @@ const TabBar: React.FC<TabBarProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <button className="p-1 hover:bg-nav-hover rounded ml-1">
+        <div className="p-1 hover:bg-nav-hover rounded ml-1 cursor-pointer">
           <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </div>
       </div>
       
       {/* Tab Search Dialog */}
