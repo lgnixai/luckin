@@ -8,11 +8,27 @@
     "description": "一个简单的Hello World扩展，演示基本的插件功能，包括活动栏图标、侧边栏内容和命令交互。"
   },
   {
-    "id": "example-plugin",
-    "name": "示例插件",
-    "version": "1.0.0",
-    "url": "https://raw.githubusercontent.com/lgnixai/luckin/main/plugins/example/manifest.json",
+    "id": "example.hello",
+    "name": "Hello Example",
+    "version": "0.1.0",
+    "url": "http://localhost:8080/plugins/example/manifest.json",
     "sha256": "placeholder-hash-for-demo",
-    "description": "这是一个示例插件，用于演示插件市场功能。"
+    "description": "简单的示例插件，演示命令注册与调用。"
+  },
+  {
+    "id": "sse-events",
+    "name": "SSE Events Monitor",
+    "version": "0.1.0",
+    "url": "http://localhost:8080/plugins/sse-events/manifest.json",
+    "sha256": "demo-hash-sse-events",
+    "description": "订阅宿主 SSE 事件并显示通知。"
+  },
+  {
+    "id": "vault-notes",
+    "name": "Vault Notes",
+    "version": "0.1.0",
+    "url": "http://localhost:8080/plugins/notes/manifest.json",
+    "sha256": "demo-hash-vault-notes",
+    "description": "使用宿主 Vault API 读写文件并展示通知。"
   }
 ]

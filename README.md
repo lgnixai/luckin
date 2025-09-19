@@ -499,6 +499,38 @@ export const myExtension: IExtension = {
 };
 ```
 
+### 🔌 插件（iframe/webview）样例与协议
+
+仓库自带 3 个可运行的 iframe 插件样例，位于 `plugins/`：
+
+- `plugins/hello-world` — UI demo，演示通知、存储、命令调用
+- `plugins/sse-events` — 订阅宿主 SSE 事件，打开命令面板并显示通知
+- `plugins/notes` — 通过 `sdk/js/client.js` 访问宿主 Vault（读/写文件），同时通过 iframe RPC 显示通知
+
+本地开发测试：
+
+1. 启动 Go 宿主（提供 /sdk /plugins /events）：`go run ./cmd/host`
+2. 启动 Web 应用：`pnpm -w --filter @apps/web dev`
+3. 在 UI 中打开对应插件视图，iframe 将加载 `plugins/<id>/index.html`
+
+iframe RPC（宿主 <-> 插件）消息协议：
+
+- 宿主 -> 插件：`{ type: 'luckin-plugin-init', pluginId, apiVersion, capabilities, hostOrigin }`
+- 插件 -> 宿主：`{ type: 'luckin-rpc', id, method, params }`
+- 宿主 -> 插件：`{ type: 'luckin-rpc-result', id, result }` 或 `{ type: 'luckin-rpc-error', id, error: { code, message } }`
+
+默认允许的方法：
+
+- `notifications.show` { type, title?, message? }
+- `storage.get` { key }
+- `storage.set` { key, value }
+- `storage.remove` { key }
+- `commands.execute` { id }
+- `ui.toggleCommandPalette` {}
+- `host.getInfo` {}
+
+Vite 开发服务器通过自定义中间件将 `apps/web/../../plugins` 目录暴露为 `/plugins` 静态资源，参阅 `apps/web/vite.config.ts`。
+
 ## 🎯 使用场景
 
 ### 💻 代码编辑器

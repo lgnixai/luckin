@@ -237,7 +237,7 @@
         }
 
         // 主要功能函数
-        function sayHello() {
+        async function sayHello() {
             const messages = [
                 '👋 Hello from Luckin IDE Plugin!',
                 '🎉 插件系统工作正常！',
@@ -249,18 +249,12 @@
             addLog(`执行 sayHello(): ${message}`);
             
             // 尝试调用宿主通知API
-            if (window.luckinAPI && window.luckinAPI.showNotification) {
-                window.luckinAPI.showNotification({
-                    type: 'info',
-                    title: 'Hello World',
-                    message: message
-                });
-            } else {
-                alert(message);
-            }
+            try {
+                await rpc('notifications.show', { type: 'info', title: 'Hello World', message });
+            } catch (e) { alert(message); }
         }
 
-        function showNotification() {
+        async function showNotification() {
             const notification = {
                 type: 'success',
                 title: '插件通知',
@@ -270,14 +264,11 @@
             
             addLog(`显示通知: ${notification.message}`);
             
-            if (window.luckinAPI && window.luckinAPI.showNotification) {
-                window.luckinAPI.showNotification(notification);
-            } else {
-                alert(`${notification.title}: ${notification.message}`);
-            }
+            try { await rpc('notifications.show', notification); }
+            catch (e) { alert(`${notification.title}: ${notification.message}`); }
         }
 
-        function executeCommand() {
+        async function executeCommand() {
             const commands = [
                 'hello-world.sayHello',
                 'hello-world.showInfo',
@@ -287,11 +278,8 @@
             
             addLog(`执行命令: ${command}`);
             
-            if (window.luckinAPI && window.luckinAPI.executeCommand) {
-                window.luckinAPI.executeCommand(command);
-            } else {
-                addLog(`模拟执行命令: ${command}`);
-            }
+            try { await rpc('commands.execute', { id: command }); }
+            catch (e) { addLog(`模拟执行命令: ${command}`); }
         }
 
         let settingsVisible = false;
@@ -338,7 +326,7 @@
             }
         }
 
-        function saveSettings() {
+        async function saveSettings() {
             const settings = {
                 enableNotifications: document.getElementById('enableNotifications').checked,
                 enableLogging: document.getElementById('enableLogging').checked,
@@ -346,22 +334,15 @@
                 lastModified: new Date().toISOString()
             };
             
-            // 尝试保存到插件存储
-            if (window.luckinAPI && window.luckinAPI.storage) {
-                window.luckinAPI.storage.set('hello-world-settings', settings);
-            } else {
-                localStorage.setItem('hello-world-settings', JSON.stringify(settings));
-            }
+            try { await rpc('storage.set', { key: 'hello-world-settings', value: settings }); }
+            catch (e) { localStorage.setItem('hello-world-settings', JSON.stringify(settings)); }
             
             addLog(`设置已保存: ${JSON.stringify(settings, null, 2)}`);
         }
 
-        function resetSettings() {
-            if (window.luckinAPI && window.luckinAPI.storage) {
-                window.luckinAPI.storage.remove('hello-world-settings');
-            } else {
-                localStorage.removeItem('hello-world-settings');
-            }
+        async function resetSettings() {
+            try { await rpc('storage.remove', { key: 'hello-world-settings' }); }
+            catch (e) { localStorage.removeItem('hello-world-settings'); }
             
             // 重置表单
             document.getElementById('enableNotifications').checked = true;
@@ -372,22 +353,15 @@
         }
 
         // 插件初始化
-        function initPlugin() {
+        async function initPlugin() {
             addLog('初始化 Hello World 插件...');
             
             // 加载保存的设置
             let savedSettings = null;
-            if (window.luckinAPI && window.luckinAPI.storage) {
-                savedSettings = window.luckinAPI.storage.get('hello-world-settings');
-            } else {
+            try { const r = await rpc('storage.get', { key: 'hello-world-settings' }); savedSettings = r?.value ?? null; }
+            catch (e) {
                 const stored = localStorage.getItem('hello-world-settings');
-                if (stored) {
-                    try {
-                        savedSettings = JSON.parse(stored);
-                    } catch (e) {
-                        addLog('设置加载失败，使用默认设置');
-                    }
-                }
+                if (stored) { try { savedSettings = JSON.parse(stored); } catch { addLog('设置加载失败，使用默认设置'); } }
             }
             
             if (savedSettings) {
@@ -415,8 +389,37 @@
                         }
                         break;
                 }
+            } else if (event.data && (event.data.type === 'luckin-plugin-init' || event.data.type === 'luckin-plugin-ack')) {
+                // 可按需处理握手
+            } else if (event.data && (event.data.type === 'luckin-rpc-result' || event.data.type === 'luckin-rpc-error')) {
+                const { id } = event.data;
+                const cb = pendingRPC.get(id);
+                if (cb) {
+                    pendingRPC.delete(id);
+                    cb(event.data);
+                }
             }
         });
+
+        // 简单的 rpc 客户端
+        const pendingRPC = new Map();
+        let rpcSeq = 0;
+        function rpc(method, params) {
+            return new Promise((resolve, reject) => {
+                const id = 'rpc-' + (++rpcSeq);
+                pendingRPC.set(id, (res) => {
+                    if (res.type === 'luckin-rpc-result') resolve(res.result);
+                    else reject(new Error(res.error?.message || 'rpc error'));
+                });
+                window.parent.postMessage({ type: 'luckin-rpc', id, method, params }, '*');
+                setTimeout(() => {
+                    if (pendingRPC.has(id)) {
+                        pendingRPC.delete(id);
+                        reject(new Error('rpc timeout'));
+                    }
+                }, 10000);
+            });
+        }
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', initPlugin);

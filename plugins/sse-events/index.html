@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>SSE Events Monitor</title>
+<style>
+  body { font-family: ui-sans-serif, system-ui; margin: 12px; color: #ddd; background: #1e1e1e; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; }
+  button { padding: 6px 10px; background: #0e639c; color: white; border: 0; border-radius: 4px; cursor: pointer; }
+  pre { background: #111; border: 1px solid #333; padding: 12px; max-height: 260px; overflow: auto; }
+  h2 { color: #4fc3f7 }
+  .tag { font-size: 12px; color: #aaa }
+</style>
+<h2>SSE Events <span class="tag">live</span></h2>
+<div class="row">
+  <button id="toast">Show Toast</button>
+  <button id="clear">Clear</button>
+  <button id="palette">Open Command Palette</button>
+  <span id="status"></span>
+  </div>
+<pre id="out"></pre>
+<script>
+  const out = document.getElementById('out');
+  const status = document.getElementById('status');
+  const pending = new Map();
+  let seq = 0;
+  function log(msg) { out.textContent += `\n${new Date().toLocaleTimeString()} ${msg}`; out.scrollTop = out.scrollHeight; }
+  function rpc(method, params) {
+    return new Promise((resolve, reject) => {
+      const id = 'rpc-' + (++seq);
+      pending.set(id, (msg) => {
+        if (msg.type === 'luckin-rpc-result') resolve(msg.result); else reject(new Error(msg.error?.message || 'rpc failed'));
+      });
+      window.parent.postMessage({ type: 'luckin-rpc', id, method, params }, '*');
+      setTimeout(() => { if (pending.has(id)) { pending.delete(id); reject(new Error('rpc timeout')); } }, 10000);
+    });
+  }
+  window.addEventListener('message', (e) => {
+    const { type, id } = e.data || {};
+    if ((type === 'luckin-rpc-result' || type === 'luckin-rpc-error') && pending.has(id)) {
+      const cb = pending.get(id); pending.delete(id); cb(e.data);
+    }
+  });
+
+  document.getElementById('toast').onclick = async () => {
+    try { await rpc('notifications.show', { type: 'info', title: 'SSE', message: 'Hello from SSE monitor' }); } catch {}
+  };
+  document.getElementById('palette').onclick = async () => {
+    try { await rpc('ui.toggleCommandPalette', {}); } catch {}
+  };
+  document.getElementById('clear').onclick = () => { out.textContent = ''; };
+
+  // Try connecting to host events (works when Go host is running)
+  try {
+    const es = new EventSource('http://localhost:8080/events');
+    es.onopen = () => { status.textContent = 'connected'; };
+    es.onerror = () => { status.textContent = 'disconnected'; };
+    es.onmessage = (ev) => { try { const d = JSON.parse(ev.data); log(`${d.type}: ${JSON.stringify(d.data)}`); } catch(e) { log(ev.data); } };
+  } catch (e) { status.textContent = 'SSE unavailable'; }
+</script>
+

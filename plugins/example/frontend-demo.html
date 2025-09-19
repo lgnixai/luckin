@@ -2,15 +2,44 @@
 <meta charset="utf-8" />
 <title>Example Plugin Demo</title>
 <script type="module">
+  // Prefer in-iframe RPC via postMessage, fallback to HTTP SDK in dev
   import { HostClient } from "../../sdk/js/client.js";
   const client = new HostClient({ baseUrl: "http://localhost:8080", pluginId: "example.hello" });
+  const pending = new Map();
+  let seq = 0;
+  function rpc(method, params) {
+    return new Promise((resolve, reject) => {
+      const id = 'rpc-' + (++seq);
+      pending.set(id, (msg) => {
+        if (msg.type === 'luckin-rpc-result') resolve(msg.result);
+        else reject(new Error(msg.error?.message || 'rpc failed'));
+      });
+      window.parent.postMessage({ type: 'luckin-rpc', id, method, params }, '*');
+      setTimeout(() => {
+        if (pending.has(id)) { pending.delete(id); reject(new Error('rpc timeout')); }
+      }, 10000);
+    });
+  }
+  window.addEventListener('message', (e) => {
+    const { type, id } = e.data || {};
+    if ((type === 'luckin-rpc-result' || type === 'luckin-rpc-error') && pending.has(id)) {
+      const cb = pending.get(id);
+      pending.delete(id);
+      cb(e.data);
+    }
+  });
 
   async function init() {
     const out = document.getElementById('out');
     try {
-      await client.writeFile("examples/hello.txt", "Hello from plugin demo!\n");
-      const files = await client.listFiles();
-      out.textContent = JSON.stringify(files, null, 2);
+      // fallback to HTTP SDK if rpc not available
+      try {
+        await client.writeFile("examples/hello.txt", "Hello from plugin demo!\n");
+        const files = await client.listFiles();
+        out.textContent = JSON.stringify(files, null, 2);
+      } catch (e) {
+        out.textContent = 'Vault API unavailable in dev';
+      }
     } catch (e) {
       out.textContent = e.message;
     }
@@ -30,7 +59,7 @@
   init();
   window.invoke = async () => {
     try {
-      await client.rpc('commands.invoke', { id: 'say-hello' });
+      await rpc('commands.execute', { id: 'example.hello.say-hello' });
       alert('Invoked');
     } catch (e) {
       alert(e.message);

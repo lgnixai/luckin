@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../lib/utils';
 import { Alert, AlertDescription } from './ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { useNotificationService, useCommandService } from '@lgnixai/luckin-core';
 
 export interface PluginContentRendererProps {
   pluginId: string;
@@ -15,6 +16,9 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addNotification, togglePalette, execute } = useCommandService();
+  const { addNotification: addToast } = useNotificationService();
+  const requestIdRef = useRef<number>(0);
 
   useEffect(() => {
     const loadPluginContent = async () => {
@@ -49,8 +53,22 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
         iframeRef.current.contentWindow.postMessage({
           type: 'luckin-plugin-init',
           pluginId: pluginId,
+          apiVersion: 1,
+          hostOrigin: window.location.origin,
+          hostBaseUrl: 'http://localhost:8080',
+          capabilities: {
+            rpc: [
+              'notifications.show',
+              'storage.get',
+              'storage.set',
+              'storage.remove',
+              'commands.execute',
+              'ui.toggleCommandPalette',
+              'host.getInfo'
+            ]
+          },
           timestamp: Date.now()
-        }, '*');
+        }, window.location.origin);
       } catch (err) {
         console.warn('Failed to initialize plugin communication:', err);
       }
@@ -72,6 +90,119 @@ export const PluginContentRenderer: React.FC<PluginContentRendererProps> = ({
           
           if (data.type === 'luckin-plugin-ready') {
             console.log(`Plugin ${pluginId} is ready`);
+            // 可选：向插件确认
+            iframeRef.current?.contentWindow?.postMessage({ type: 'luckin-plugin-ack', pluginId, timestamp: Date.now() }, window.location.origin);
+            return;
+          }
+          
+          // 插件 RPC 调用
+          if (data.type === 'luckin-rpc' && typeof data.method === 'string') {
+            const reqId = data.id ?? `rpc-${++requestIdRef.current}`;
+            const respond = (result: any) => {
+              iframeRef.current?.contentWindow?.postMessage({ type: 'luckin-rpc-result', id: reqId, result }, window.location.origin);
+            };
+            const respondError = (message: string, code = 400) => {
+              iframeRef.current?.contentWindow?.postMessage({ type: 'luckin-rpc-error', id: reqId, error: { code, message } }, window.location.origin);
+            };
+
+            const method: string = data.method;
+            const params = data.params || {};
+            
+            // 简单权限/白名单
+            const allowed = new Set([
+              'notifications.show',
+              'storage.get',
+              'storage.set',
+              'storage.remove',
+              'commands.execute',
+              'ui.toggleCommandPalette',
+              'host.getInfo',
+            ]);
+            if (!allowed.has(method)) {
+              respondError(`Method not allowed: ${method}`, 403);
+              return;
+            }
+
+            (async () => {
+              switch (method) {
+                case 'notifications.show': {
+                  const { type = 'info', title, message } = params || {};
+                  const value = [title, message].filter(Boolean).join(' ');
+                  try {
+                    addToast({ id: `${pluginId}-${Date.now()}`, value, type });
+                    respond({ ok: true });
+                  } catch (e: any) {
+                    respondError(e?.message || 'failed to show notification');
+                  }
+                  break;
+                }
+                case 'storage.get': {
+                  const { key } = params || {};
+                  if (!key) return respondError('missing key');
+                  try {
+                    const raw = localStorage.getItem(`luckin-plugin:${pluginId}:${key}`);
+                    let value: any = null;
+                    if (raw != null) {
+                      try { value = JSON.parse(raw); } catch { value = raw; }
+                    }
+                    respond({ value });
+                  } catch (e: any) {
+                    respondError(e?.message || 'storage.get failed');
+                  }
+                  break;
+                }
+                case 'storage.set': {
+                  const { key, value } = params || {};
+                  if (!key) return respondError('missing key');
+                  try {
+                    const toSave = typeof value === 'string' ? value : JSON.stringify(value);
+                    localStorage.setItem(`luckin-plugin:${pluginId}:${key}`, toSave);
+                    respond({ ok: true });
+                  } catch (e: any) {
+                    respondError(e?.message || 'storage.set failed');
+                  }
+                  break;
+                }
+                case 'storage.remove': {
+                  const { key } = params || {};
+                  if (!key) return respondError('missing key');
+                  try {
+                    localStorage.removeItem(`luckin-plugin:${pluginId}:${key}`);
+                    respond({ ok: true });
+                  } catch (e: any) {
+                    respondError(e?.message || 'storage.remove failed');
+                  }
+                  break;
+                }
+                case 'commands.execute': {
+                  const { id } = params || {};
+                  if (!id) return respondError('missing command id');
+                  try {
+                    await execute(id);
+                    respond({ ok: true });
+                  } catch (e: any) {
+                    respondError(e?.message || 'execute failed');
+                  }
+                  break;
+                }
+                case 'ui.toggleCommandPalette': {
+                  try {
+                    togglePalette(true);
+                    respond({ ok: true });
+                  } catch (e: any) {
+                    respondError(e?.message || 'toggle palette failed');
+                  }
+                  break;
+                }
+                case 'host.getInfo': {
+                  respond({ pluginId, origin: window.location.origin });
+                  break;
+                }
+                default:
+                  respondError(`unknown method: ${method}`, 404);
+              }
+            })();
+            return;
           } else if (data.type === 'luckin-plugin-error') {
             setError(data.message || '插件运行时错误');
           }

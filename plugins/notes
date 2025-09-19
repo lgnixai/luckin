@@ -1,0 +1,10 @@
+{
+  "id": "vault-notes",
+  "name": "Vault Notes",
+  "version": "0.1.0",
+  "author": "Luckin IDE Team",
+  "description": "Create and read notes via host vault APIs.",
+  "entrypoints": { "frontend": "index.html" },
+  "permissions": ["vault.read", "vault.write", "notifications"]
+}
+

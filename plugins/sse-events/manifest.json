@@ -1,0 +1,10 @@
+{
+  "id": "sse-events",
+  "name": "SSE Events Monitor",
+  "version": "0.1.0",
+  "author": "Luckin IDE Team",
+  "description": "Display host SSE events and show toast via RPC.",
+  "entrypoints": { "frontend": "index.html" },
+  "permissions": ["notifications"]
+}
+
