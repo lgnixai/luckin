@@ -1,0 +1,18 @@
+[
+  {
+    "id": "hello-world",
+    "name": "Hello World 扩展",
+    "version": "1.0.0",
+    "url": "http://localhost:8080/plugins/hello-world/manifest.json",
+    "sha256": "demo-hash-hello-world",
+    "description": "一个简单的Hello World扩展，演示基本的插件功能，包括活动栏图标、侧边栏内容和命令交互。"
+  },
+  {
+    "id": "example-plugin",
+    "name": "示例插件",
+    "version": "1.0.0",
+    "url": "https://raw.githubusercontent.com/lgnixai/luckin/main/plugins/example/manifest.json",
+    "sha256": "placeholder-hash-for-demo",
+    "description": "这是一个示例插件，用于演示插件市场功能。"
+  }
+]

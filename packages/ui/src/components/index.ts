@@ -24,3 +24,4 @@ export { MonacoEditor } from './monaco-editor';
 export { CommandPalette } from './command-palette';
 export { SearchView } from './search-view';
 export { ExtensionManager } from './extension-manager';
+export { PluginContentRenderer } from './plugin-content-renderer';

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '../lib/utils';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Switch } from './ui/switch';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Progress } from './ui/progress';
+import { Alert, AlertDescription } from './ui/alert';
 import { 
   Search, 
   Download, 
@@ -31,7 +31,20 @@ import {
   FileText,
   Globe
 } from 'lucide-react';
-import type { IPlugin, PluginState } from '@lgnixai/luckin-types';
+import type { IPlugin } from '@lgnixai/luckin-types';
+import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
+
+// 临时导入 PluginState 枚举定义
+enum PluginState {
+  Unloaded = 'unloaded',
+  Loading = 'loading',
+  Loaded = 'loaded',
+  Activating = 'activating',
+  Active = 'active',
+  Deactivating = 'deactivating',
+  Deactivated = 'deactivated',
+  Failed = 'failed'
+}
 
 // 插件分类
 export enum PluginCategory {
@@ -89,6 +102,34 @@ class PluginService {
 
   private initializeMockData() {
     const mockPlugins: IExtendedPlugin[] = [
+      {
+        id: 'hello-world',
+        manifest: {
+          id: 'hello-world',
+          name: 'Hello World 扩展',
+          displayName: 'Hello World 扩展',
+          version: '1.0.0',
+          description: '一个简单的Hello World扩展，演示基本的插件功能，包括活动栏图标、侧边栏内容和命令交互。',
+          author: 'Luckin IDE Team',
+          publisher: 'luckin-team',
+          engines: { luckin: '^3.0.0' },
+          categories: ['Other'],
+          keywords: ['demo', 'hello-world', 'example', 'tutorial']
+        },
+        state: PluginState.Active,
+        context: {} as any,
+        exports: {},
+        activate: async () => {},
+        dispose: () => {},
+        onDidChangeState: {} as any,
+        downloadCount: 1000,
+        rating: 5.0,
+        reviewCount: 10,
+        lastUpdated: '2025-09-19',
+        size: '15 KB',
+        category: PluginCategory.Other,
+        source: PluginSource.Local
+      },
       {
         id: 'markdown-preview',
         manifest: {
@@ -355,90 +396,120 @@ const PluginCard: React.FC<{
     );
   }
 
+  // 获取插件图标
+  const getPluginIcon = (pluginId: string) => {
+    switch (pluginId) {
+      case 'hello-world': return '👋';
+      case 'markdown-preview': return '📝';
+      case 'theme-dracula': return '🧛';
+      default: return plugin.manifest.displayName?.charAt(0) || plugin.manifest.name.charAt(0);
+    }
+  };
+
   return (
-    <Card className="relative">
-      <CardHeader className="pb-2">
+    <Card className="relative hover:shadow-lg transition-all duration-200 border hover:border-blue-300">
+      <CardContent className="p-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-2">
-            <div className={cn("flex items-center", getStateColor(plugin.state))}>
-              {getStateIcon(plugin.state)}
+          <div className="flex items-start space-x-3 flex-1">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">
+              {getPluginIcon(plugin.id)}
             </div>
-            <div>
-              <CardTitle className="text-sm">{plugin.manifest.displayName}</CardTitle>
-              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                <span>v{plugin.manifest.version}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <CardTitle className="text-base font-semibold truncate">{plugin.manifest.displayName}</CardTitle>
+                <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                  v{plugin.manifest.version}
+                </Badge>
                 {plugin.source === PluginSource.Official && (
-                  <Badge variant="secondary" className="text-xs">Official</Badge>
+                  <Badge variant="default" className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800">
+                    Official
+                  </Badge>
+                )}
+                {plugin.source === PluginSource.Local && (
+                  <Badge variant="outline" className="text-xs px-2 py-0.5 border-green-300 text-green-700 bg-green-50">
+                    Local
+                  </Badge>
+                )}
+                {plugin.hasUpdate && (
+                  <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                    Update Available
+                  </Badge>
                 )}
               </div>
+              <CardDescription className="text-sm mb-3 line-clamp-2 leading-relaxed text-gray-600">
+                {plugin.manifest.description}
+              </CardDescription>
+              
+              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                {plugin.rating && (
+                  <div className="flex items-center space-x-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{plugin.rating.toFixed(1)}</span>
+                  </div>
+                )}
+                <span>•</span>
+                <span>{plugin.downloadCount?.toLocaleString()} downloads</span>
+                <span>•</span>
+                <span className="font-medium">{plugin.size}</span>
+              </div>
             </div>
           </div>
-          {plugin.hasUpdate && (
-            <Badge variant="destructive" className="text-xs">Update Available</Badge>
-          )}
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        <CardDescription className="text-xs mb-3 line-clamp-2">
-          {plugin.manifest.description}
-        </CardDescription>
-        
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-          <div className="flex items-center space-x-3">
-            {plugin.rating && (
-              <div className="flex items-center space-x-1">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span>{plugin.rating}</span>
-              </div>
-            )}
-            <span>{plugin.downloadCount?.toLocaleString()} downloads</span>
-          </div>
-          <span>{plugin.size}</span>
-        </div>
-
-        <div className="flex space-x-2">
-          {plugin.hasUpdate && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              onClick={() => onUpdate(plugin.id)}
-              disabled={isLoading}
-            >
-              {plugin.isInstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Update'}
-            </Button>
-          )}
           
-          {isInstalled ? (
-            <>
-              <div className="flex items-center space-x-2 flex-1">
-                <Switch
-                  checked={isActive}
-                  onCheckedChange={(checked) => checked ? onEnable(plugin.id) : onDisable(plugin.id)}
-                  disabled={isLoading}
-                />
-                <span className="text-xs">{isActive ? 'Enabled' : 'Disabled'}</span>
-              </div>
+          <div className="flex flex-col items-end space-y-2 ml-4">
+            {plugin.hasUpdate && (
               <Button
                 size="sm"
-                variant="destructive"
-                onClick={() => onUninstall(plugin.id)}
+                variant="outline"
+                onClick={() => onUpdate(plugin.id)}
+                disabled={isLoading}
+                className="px-4"
+              >
+                {plugin.isInstalling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Update
+              </Button>
+            )}
+            
+            {isInstalled ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={(checked) => checked ? onEnable(plugin.id) : onDisable(plugin.id)}
+                    disabled={isLoading}
+                    className="data-[state=checked]:bg-green-500"
+                  />
+                  <span className={`text-xs font-medium ${
+                    isActive ? 'text-green-600' : 'text-gray-500'
+                  }`}>
+                    {isActive ? 'Enabled' : 'Disabled'}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onUninstall(plugin.id)}
+                  disabled={isLoading}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                >
+                  {plugin.isUninstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 px-4"
+                onClick={() => onInstall(plugin.id)}
                 disabled={isLoading}
               >
-                {plugin.isUninstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                {plugin.isInstalling ? (
+                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                ) : (
+                  <Download className="w-3 h-3 mr-1" />
+                )}
+                Install
               </Button>
-            </>
-          ) : (
-            <Button
-              size="sm"
-              className="flex-1"
-              onClick={() => onInstall(plugin.id)}
-              disabled={isLoading}
-            >
-              {plugin.isInstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Install'}
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -564,6 +635,9 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
   const [marketplacePlugins, setMarketplacePlugins] = useState<IExtendedPlugin[]>([]);
   const [loading, setLoading] = useState(false);
   
+  // 添加layout store用于活动栏同步
+  const { addActivityItem, removeActivityItem } = useLayoutStore();
+  
   const pluginService = useMemo(() => new PluginService(), []);
 
   // 加载已安装插件
@@ -572,6 +646,26 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
     try {
       const plugins = await pluginService.getInstalledPlugins();
       setInstalledPlugins(plugins);
+      
+      // 为已启用的插件添加活动栏项目
+      plugins.forEach(plugin => {
+        if (plugin.state === PluginState.Active) {
+          const getPluginActivityIcon = (id: string) => {
+            switch (id) {
+              case 'hello-world': return '👋';
+              case 'markdown-preview': return '📝';
+              case 'theme-dracula': return '🧛';
+              default: return '📦';
+            }
+          };
+          
+          addActivityItem({
+            id: plugin.id,
+            label: plugin.manifest.displayName || plugin.manifest.name,
+            icon: getPluginActivityIcon(plugin.id)
+          });
+        }
+      });
     } catch (error) {
       console.error('Failed to load installed plugins:', error);
     } finally {
@@ -633,6 +727,28 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
     try {
       await pluginService.enablePlugin(pluginId);
       await loadInstalledPlugins();
+      
+      // 启用插件时，添加到活动栏
+      const plugin = installedPlugins.find(p => p.id === pluginId);
+      if (plugin) {
+        // 获取插件图标
+        const getPluginActivityIcon = (id: string) => {
+          switch (id) {
+            case 'hello-world': return '👋';
+            case 'markdown-preview': return '📝';
+            case 'theme-dracula': return '🧛';
+            default: return '📦';
+          }
+        };
+        
+        addActivityItem({
+          id: pluginId,
+          label: plugin.manifest.displayName || plugin.manifest.name,
+          icon: getPluginActivityIcon(pluginId)
+        });
+        
+        console.log(`已启用插件并添加到活动栏: ${pluginId}`);
+      }
     } catch (error) {
       console.error('Failed to enable plugin:', error);
     }
@@ -642,6 +758,10 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
     try {
       await pluginService.disablePlugin(pluginId);
       await loadInstalledPlugins();
+      
+      // 禁用插件时，从活动栏移除
+      removeActivityItem(pluginId);
+      console.log(`已禁用插件并从活动栏移除: ${pluginId}`);
     } catch (error) {
       console.error('Failed to disable plugin:', error);
     }
@@ -761,7 +881,7 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
             ) : (
               <div className={cn(
                 viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 gap-4" 
+                  ? "space-y-4" 
                   : "space-y-2"
               )}>
                 {installedPlugins.map(plugin => (
@@ -797,7 +917,7 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
             ) : (
               <div className={cn(
                 viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 gap-4" 
+                  ? "space-y-4" 
                   : "space-y-2"
               )}>
                 {marketplacePlugins.map(plugin => (

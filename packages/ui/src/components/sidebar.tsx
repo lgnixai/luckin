@@ -1,12 +1,13 @@
 import React from 'react';
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 import { useLayoutStore } from '@lgnixai/luckin-core';
-import { Explorer } from "@/components/explorer";
-import { TestPane } from "@/components/test-pane";
-import { SearchView } from "@/components/search-view";
-import { NotificationCenter } from "@/components/notification-center";
-import { SettingsPanel } from "@/components/settings-panel";
-import { ExtensionManager } from "@/components/extension-manager";
+import { Explorer } from "./explorer";
+import { TestPane } from "./test-pane";
+import { SearchView } from "./search-view";
+import { NotificationCenter } from "./notification-center";
+import { SettingsPanel } from "./settings-panel";
+import { ExtensionManager } from "./extension-manager";
+import { PluginContentRenderer } from "./plugin-content-renderer";
 
 export interface SidebarProps {
   className?: string;
@@ -16,7 +17,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const { layout } = useLayoutStore();
 
   const renderContent = () => {
-    switch (layout.sidebar.current) {
+    const current = layout.sidebar.current;
+    
+    // 首先检查是否是系统内置面板
+    switch (current) {
       case 'explorer':
         return <Explorer />;
       case 'search':
@@ -34,6 +38,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
       case 'settings':
         return <SettingsPanel />;
       default:
+        // 检查是否是插件ID
+        const isPlugin = layout.activityItems?.some(item => item.id === current && 
+          !['explorer', 'search', 'git', 'debug', 'extensions', 'user', 'test', 'settings'].includes(item.id)
+        );
+        
+        if (isPlugin) {
+          return <PluginContentRenderer pluginId={current} />;
+        }
+        
+        // 默认显示资源管理器
         return <Explorer />;
     }
   };

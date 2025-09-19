@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World Plugin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--vscode-editor-background, #1e1e1e);
+            color: var(--vscode-editor-foreground, #d4d4d4);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--vscode-textLink-foreground, #4fc3f7);
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .header .emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .card {
+            background: var(--vscode-editor-inactiveSelectionBackground, #3a3d41);
+            border: 1px solid var(--vscode-widget-border, #454545);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--vscode-textLink-foreground, #4fc3f7);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            background: var(--vscode-button-background, #0e639c);
+            color: var(--vscode-button-foreground, #ffffff);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--vscode-button-hoverBackground, #1177bb);
+        }
+
+        button:active {
+            background: var(--vscode-button-activeBackground, #0e639c);
+        }
+
+        .secondary-button {
+            background: var(--vscode-button-secondaryBackground, #5f6a79);
+            color: var(--vscode-button-secondaryForeground, #ffffff);
+        }
+
+        .secondary-button:hover {
+            background: var(--vscode-button-secondaryHoverBackground, #6c7883);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: var(--vscode-input-background, #3c3c3c);
+            border: 1px solid var(--vscode-input-border, #3c3c3c);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .info-item strong {
+            color: var(--vscode-textLink-foreground, #4fc3f7);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--vscode-testing-iconPassed, #73c991);
+            margin-right: 8px;
+        }
+
+        .log-area {
+            background: var(--vscode-terminal-background, #0d1117);
+            border: 1px solid var(--vscode-terminal-border, #30363d);
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: '✓';
+            color: var(--vscode-testing-iconPassed, #73c991);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="emoji">👋</span>
+            <h1>Hello World Plugin</h1>
+            <p>欢迎使用 Luckin IDE 插件系统演示</p>
+        </div>
+
+        <div class="card">
+            <h2>🚀 插件功能演示</h2>
+            <p>这个插件展示了 Luckin IDE 插件系统的核心功能，包括活动栏集成、命令系统、通知和存储功能。</p>
+            
+            <div class="button-group">
+                <button onclick="sayHello()">👋 Say Hello</button>
+                <button onclick="showNotification()">📢 显示通知</button>
+                <button onclick="executeCommand()">⚡ 执行命令</button>
+                <button class="secondary-button" onclick="toggleSettings()">⚙️ 设置</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 插件信息</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>状态</strong>
+                    <span class="status-indicator"></span>已激活
+                </div>
+                <div class="info-item">
+                    <strong>版本</strong>
+                    v1.0.0
+                </div>
+                <div class="info-item">
+                    <strong>作者</strong>
+                    Luckin IDE Team
+                </div>
+                <div class="info-item">
+                    <strong>许可证</strong>
+                    MIT
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✨ 功能特性</h2>
+            <ul class="feature-list">
+                <li>活动栏图标集成</li>
+                <li>侧边栏自定义界面</li>
+                <li>命令面板集成</li>
+                <li>通知系统</li>
+                <li>本地存储</li>
+                <li>响应式设计</li>
+                <li>主题自适应</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>📝 操作日志</h2>
+            <div id="logArea" class="log-area">插件已加载 - Hello World Plugin v1.0.0
+等待用户交互...
+</div>
+        </div>
+    </div>
+
+    <script>
+        // 日志功能
+        function addLog(message) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString('zh-CN');
+            logArea.textContent += `\n[${timestamp}] ${message}`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 主要功能函数
+        function sayHello() {
+            const messages = [
+                '👋 Hello from Luckin IDE Plugin!',
+                '🎉 插件系统工作正常！',
+                '✨ 欢迎使用 Hello World 插件！',
+                '🚀 Luckin IDE 插件开发很简单！'
+            ];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            
+            addLog(`执行 sayHello(): ${message}`);
+            
+            // 尝试调用宿主通知API
+            if (window.luckinAPI && window.luckinAPI.showNotification) {
+                window.luckinAPI.showNotification({
+                    type: 'info',
+                    title: 'Hello World',
+                    message: message
+                });
+            } else {
+                alert(message);
+            }
+        }
+
+        function showNotification() {
+            const notification = {
+                type: 'success',
+                title: '插件通知',
+                message: '这是来自 Hello World 插件的通知消息！',
+                duration: 3000
+            };
+            
+            addLog(`显示通知: ${notification.message}`);
+            
+            if (window.luckinAPI && window.luckinAPI.showNotification) {
+                window.luckinAPI.showNotification(notification);
+            } else {
+                alert(`${notification.title}: ${notification.message}`);
+            }
+        }
+
+        function executeCommand() {
+            const commands = [
+                'hello-world.sayHello',
+                'hello-world.showInfo',
+                'hello-world.openSettings'
+            ];
+            const command = commands[Math.floor(Math.random() * commands.length)];
+            
+            addLog(`执行命令: ${command}`);
+            
+            if (window.luckinAPI && window.luckinAPI.executeCommand) {
+                window.luckinAPI.executeCommand(command);
+            } else {
+                addLog(`模拟执行命令: ${command}`);
+            }
+        }
+
+        let settingsVisible = false;
+        function toggleSettings() {
+            settingsVisible = !settingsVisible;
+            addLog(`${settingsVisible ? '打开' : '关闭'}设置面板`);
+            
+            if (settingsVisible) {
+                // 创建设置面板
+                if (!document.getElementById('settingsPanel')) {
+                    const settingsPanel = document.createElement('div');
+                    settingsPanel.id = 'settingsPanel';
+                    settingsPanel.className = 'card';
+                    settingsPanel.innerHTML = `
+                        <h2>⚙️ 插件设置</h2>
+                        <div style="margin-top: 15px;">
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" id="enableNotifications" checked style="margin-right: 8px;">
+                                启用通知
+                            </label>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" id="enableLogging" checked style="margin-right: 8px;">
+                                启用日志记录
+                            </label>
+                            <label style="display: block; margin-bottom: 15px;">
+                                主题偏好:
+                                <select id="themePreference" style="margin-left: 8px; padding: 5px;">
+                                    <option value="auto">自动</option>
+                                    <option value="light">浅色</option>
+                                    <option value="dark">深色</option>
+                                </select>
+                            </label>
+                            <button onclick="saveSettings()" style="margin-right: 10px;">💾 保存设置</button>
+                            <button class="secondary-button" onclick="resetSettings()">🔄 重置</button>
+                        </div>
+                    `;
+                    document.querySelector('.container').appendChild(settingsPanel);
+                }
+            } else {
+                const settingsPanel = document.getElementById('settingsPanel');
+                if (settingsPanel) {
+                    settingsPanel.remove();
+                }
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                enableNotifications: document.getElementById('enableNotifications').checked,
+                enableLogging: document.getElementById('enableLogging').checked,
+                themePreference: document.getElementById('themePreference').value,
+                lastModified: new Date().toISOString()
+            };
+            
+            // 尝试保存到插件存储
+            if (window.luckinAPI && window.luckinAPI.storage) {
+                window.luckinAPI.storage.set('hello-world-settings', settings);
+            } else {
+                localStorage.setItem('hello-world-settings', JSON.stringify(settings));
+            }
+            
+            addLog(`设置已保存: ${JSON.stringify(settings, null, 2)}`);
+        }
+
+        function resetSettings() {
+            if (window.luckinAPI && window.luckinAPI.storage) {
+                window.luckinAPI.storage.remove('hello-world-settings');
+            } else {
+                localStorage.removeItem('hello-world-settings');
+            }
+            
+            // 重置表单
+            document.getElementById('enableNotifications').checked = true;
+            document.getElementById('enableLogging').checked = true;
+            document.getElementById('themePreference').value = 'auto';
+            
+            addLog('设置已重置为默认值');
+        }
+
+        // 插件初始化
+        function initPlugin() {
+            addLog('初始化 Hello World 插件...');
+            
+            // 加载保存的设置
+            let savedSettings = null;
+            if (window.luckinAPI && window.luckinAPI.storage) {
+                savedSettings = window.luckinAPI.storage.get('hello-world-settings');
+            } else {
+                const stored = localStorage.getItem('hello-world-settings');
+                if (stored) {
+                    try {
+                        savedSettings = JSON.parse(stored);
+                    } catch (e) {
+                        addLog('设置加载失败，使用默认设置');
+                    }
+                }
+            }
+            
+            if (savedSettings) {
+                addLog(`加载已保存的设置: ${JSON.stringify(savedSettings, null, 2)}`);
+            }
+            
+            addLog('Hello World 插件初始化完成！');
+        }
+
+        // 监听来自宿主的消息
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'luckin-command') {
+                addLog(`收到宿主命令: ${event.data.command}`);
+                
+                switch (event.data.command) {
+                    case 'hello-world.sayHello':
+                        sayHello();
+                        break;
+                    case 'hello-world.showInfo':
+                        addLog('显示插件信息');
+                        break;
+                    case 'hello-world.openSettings':
+                        if (!settingsVisible) {
+                            toggleSettings();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPlugin);
+        
+        // 如果DOM已经加载完成，立即初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPlugin);
+        } else {
+            initPlugin();
+        }
+    </script>
+</body>
+</html>

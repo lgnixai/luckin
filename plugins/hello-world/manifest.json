@@ -1,0 +1,63 @@
+{
+  "id": "hello-world",
+  "name": "Hello World 扩展",
+  "version": "1.0.0",
+  "description": "一个简单的Hello World扩展，演示基本的插件功能，包括活动栏图标、侧边栏内容和命令交互。",
+  "author": "Luckin IDE Team",
+  "license": "MIT",
+  "main": "index.js",
+  "entrypoints": {
+    "frontend": "index.html"
+  },
+  "contributes": {
+    "activitybar": {
+      "id": "hello-world",
+      "title": "Hello World",
+      "icon": "👋",
+      "order": 100
+    },
+    "commands": [
+      {
+        "id": "hello-world.sayHello",
+        "title": "Say Hello",
+        "category": "Hello World"
+      },
+      {
+        "id": "hello-world.showInfo",
+        "title": "Show Plugin Info",
+        "category": "Hello World"
+      },
+      {
+        "id": "hello-world.openSettings",
+        "title": "Open Settings",
+        "category": "Hello World"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "hello-world.sayHello",
+          "when": "true"
+        },
+        {
+          "command": "hello-world.showInfo",
+          "when": "true"
+        }
+      ]
+    }
+  },
+  "permissions": [
+    "notifications",
+    "storage",
+    "commands"
+  ],
+  "engines": {
+    "luckin": "^3.0.0"
+  },
+  "keywords": [
+    "demo",
+    "hello-world",
+    "example",
+    "tutorial"
+  ]
+}

@@ -1,6 +1,6 @@
 import React from 'react';
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "../lib/utils";
+import { Button } from "./ui/button";
 import * as LucideIcons from 'lucide-react';
 
 const { 
@@ -15,7 +15,7 @@ const {
   TestTube,
   AlertTriangle
 } = LucideIcons;
-import { useLayoutStore } from '@lgnixai/luckin-core';
+import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
 
 // Error Boundary for ActivityBar component
 class ActivityBarErrorBoundary extends React.Component<
@@ -178,21 +178,40 @@ const ActivityBarCore: React.FC<ActivityBarProps> = ({ className, iconMap }) => 
     }
   };
 
-  // 安全的图标渲染组件，包含错误边界处理
+  // 安全的图标渲染组件，支持emoji和Lucide图标
   const SafeIcon: React.FC<{ 
-    IconComponent: React.ComponentType<any>; 
+    IconComponent?: React.ComponentType<any>; 
     activityId: string; 
-    className?: string; 
-  }> = ({ IconComponent, activityId, className }) => {
-    try {
-      return <IconComponent className={className} />;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`[ActivityBar] Error rendering icon for activity: "${activityId}":`, error);
-      }
-      // 渲染错误时使用警告图标
-      return <AlertTriangle className={className} />;
+    className?: string;
+    activity?: any;
+  }> = ({ IconComponent, activityId, className, activity }) => {
+    // 如果活动项有自定义图标（emoji），优先使用
+    if (activity?.icon && typeof activity.icon === 'string') {
+      return (
+        <span 
+          className={cn("flex items-center justify-center text-lg", className?.replace('h-5 w-5', ''))}
+          style={{ fontSize: '20px' }}
+        >
+          {activity.icon}
+        </span>
+      );
     }
+    
+    // 否则使用Lucide图标
+    if (IconComponent) {
+      try {
+        return <IconComponent className={className} />;
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`[ActivityBar] Error rendering icon for activity: "${activityId}":`, error);
+        }
+        // 渲染错误时使用警告图标
+        return <AlertTriangle className={className} />;
+      }
+    }
+
+    // 默认图标
+    return <FileText className={className} />;
   };
 
   const handleActivityClick = (activityId: string) => {
@@ -263,7 +282,8 @@ const ActivityBarCore: React.FC<ActivityBarProps> = ({ className, iconMap }) => 
               <SafeIcon 
                 IconComponent={IconComponent} 
                 activityId={activity.id} 
-                className="h-5 w-5" 
+                className="h-5 w-5"
+                activity={activity}
               />
             </Button>
           );
