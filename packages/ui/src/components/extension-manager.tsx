@@ -32,7 +32,7 @@ import {
   Globe
 } from 'lucide-react';
 import type { IPlugin } from '@lgnixai/luckin-types';
-import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core';
 
 // 临时导入 PluginState 枚举定义
 enum PluginState {
@@ -636,7 +636,7 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
   const [loading, setLoading] = useState(false);
   
   // 添加layout store用于活动栏同步
-  const { addActivityItem, removeActivityItem } = useLayoutStore();
+  const { addActivityItem, removeActivityItem, setSidebarCurrent, toggleSidebar } = useLayoutStore();
   
   const pluginService = useMemo(() => new PluginService(), []);
 
@@ -715,6 +715,8 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
     try {
       await pluginService.uninstallPlugin(pluginId);
       await loadInstalledPlugins();
+      // 卸载后确保从活动栏移除并重置侧边栏（store会自动回退到 explorer）
+      removeActivityItem(pluginId);
       if (activeTab === 'marketplace') {
         await searchMarketplacePlugins();
       }
@@ -746,6 +748,14 @@ export const ExtensionManager: React.FC<ExtensionManagerProps> = ({ className })
           label: plugin.manifest.displayName || plugin.manifest.name,
           icon: getPluginActivityIcon(pluginId)
         });
+        // 自动切换到该活动并确保侧边栏可见
+        if (typeof setSidebarCurrent === 'function') {
+          setSidebarCurrent(pluginId as any);
+        }
+        if (typeof toggleSidebar === 'function') {
+          const layoutState = (useLayoutStore.getState && useLayoutStore.getState())?.layout;
+          if (layoutState?.sidebar?.hidden) toggleSidebar();
+        }
         
         console.log(`已启用插件并添加到活动栏: ${pluginId}`);
       }

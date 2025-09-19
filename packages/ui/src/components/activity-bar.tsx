@@ -15,7 +15,7 @@ const {
   TestTube,
   AlertTriangle
 } = LucideIcons;
-import { useLayoutStore } from '@lgnixai/luckin-core-legacy';
+import { useLayoutStore } from '@lgnixai/luckin-core';
 
 // Error Boundary for ActivityBar component
 class ActivityBarErrorBoundary extends React.Component<
@@ -85,7 +85,7 @@ export interface ActivityBarProps {
 
 const ActivityBarCore: React.FC<ActivityBarProps> = ({ className, iconMap }) => {
   // React hooks必须在组件顶层调用，不能在try-catch中
-  const { layout, setSidebarCurrent } = useLayoutStore();
+  const { layout, setSidebarCurrent, toggleSidebar } = useLayoutStore();
   // 安全地获取activities，包含防御性检查
   const activities = React.useMemo(() => {
     const defaultActivities = [
@@ -219,6 +219,10 @@ const ActivityBarCore: React.FC<ActivityBarProps> = ({ className, iconMap }) => 
       console.log(`活动栏点击: ${activityId}`);
       if (setSidebarCurrent && typeof setSidebarCurrent === 'function') {
         setSidebarCurrent(activityId as any);
+        // Ensure sidebar is visible when an activity is selected
+        if (layout?.sidebar?.hidden && typeof toggleSidebar === 'function') {
+          toggleSidebar();
+        }
       } else if (process.env.NODE_ENV === 'development') {
         console.warn('[ActivityBar] setSidebarCurrent is not available or not a function');
       }
