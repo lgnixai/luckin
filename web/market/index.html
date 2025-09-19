@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Plugin Market</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 0; display: flex; height: 100vh; }
+aside { width: 320px; border-right: 1px solid #eee; padding: 12px; overflow: auto; }
+main { flex: 1; padding: 16px; overflow: auto; }
+button { padding: 6px 10px; margin-left: 8px; }
+.item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; }
+.muted { color: #666; font-size: 12px; }
+</style>
+<aside>
+  <h3>Marketplace</h3>
+  <div id="market"></div>
+</aside>
+<main>
+  <h3>Installed</h3>
+  <div id="installed"></div>
+</main>
+<script type="module">
+async function getJSON(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+async function load() {
+  const [market, installed] = await Promise.all([
+    getJSON('/market'),
+    fetch('/rpc', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({method:'host.getPlugins'})}).then(r=>r.json()).then(x=>x.result)
+  ]);
+  renderMarket(market, installed.map(p=>p.id));
+  renderInstalled(installed);
+}
+function renderMarket(items, installedIds) {
+  const el = document.getElementById('market');
+  el.innerHTML = '';
+  for (const it of items) {
+    const row = document.createElement('div'); row.className = 'item';
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${it.name}</strong> <span class="muted">${it.id}</span></div><div class="muted">${it.version}</div>`;
+    const btn = document.createElement('button');
+    const isInstalled = installedIds.includes(it.id);
+    btn.textContent = isInstalled ? 'Installed' : 'Install';
+    btn.disabled = isInstalled;
+    btn.onclick = async () => { await fetch('/market', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: it.id, url: it.url, sha256: it.sha256})}); await load(); };
+    row.append(left, btn); el.append(row);
+  }
+}
+function renderInstalled(list) {
+  const el = document.getElementById('installed');
+  el.innerHTML = '';
+  for (const p of list) {
+    const row = document.createElement('div'); row.className = 'item';
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${p.name}</strong> <span class="muted">${p.id}</span></div><div class="muted">${p.version}</div>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Uninstall';
+    btn.onclick = async () => { await fetch(`/market?id=${encodeURIComponent(p.id)}`, {method: 'DELETE'}); await load(); };
+    row.append(left, btn); el.append(row);
+  }
+}
+load();
+</script>
+

@@ -4,6 +4,7 @@ type Config struct {
 	RootDir    string
 	PluginsDir string
 	VaultDir   string
+    MarketIndex string
 }
 
 type Manifest struct {

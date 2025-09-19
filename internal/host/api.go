@@ -33,10 +33,13 @@ func (h *PluginHost) StartHTTPServer(addr string) error {
 	})
     mux.HandleFunc("/events", h.handleSSE)
 	mux.HandleFunc("/rpc", h.handleRPC)
+    mux.HandleFunc("/market", h.handleMarket)
     // Serve SDK and plugin static assets
     sdkDir := filepath.Join(h.config.RootDir, "sdk")
+    webDir := filepath.Join(h.config.RootDir, "web")
     mux.Handle("/sdk/", http.StripPrefix("/sdk/", http.FileServer(http.Dir(sdkDir))))
     mux.Handle("/plugins/", http.StripPrefix("/plugins/", http.FileServer(http.Dir(h.config.PluginsDir))))
+    mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir(webDir))))
 	log.Printf("HTTP server listening on %s", addr)
 	return http.ListenAndServe(addr, mux)
 }
@@ -147,6 +150,50 @@ func (h *PluginHost) handleRPC(w http.ResponseWriter, r *http.Request) {
 	default:
 		writeRPCError(w, req.ID, 404, "unknown method")
 	}
+}
+
+func (h *PluginHost) handleMarket(w http.ResponseWriter, r *http.Request) {
+    switch r.Method {
+    case http.MethodGet:
+        items, err := h.fetchMarketIndex()
+        if err != nil {
+            w.WriteHeader(http.StatusBadGateway)
+            _, _ = w.Write([]byte(err.Error()))
+            return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        _ = json.NewEncoder(w).Encode(items)
+    case http.MethodPost:
+        var p struct {
+            ID     string `json:"id"`
+            URL    string `json:"url"`
+            SHA256 string `json:"sha256"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&p); err != nil || p.ID == "" || p.URL == "" {
+            w.WriteHeader(http.StatusBadRequest)
+            return
+        }
+        if err := h.installPluginFromURL(p.ID, p.URL, p.SHA256); err != nil {
+            w.WriteHeader(http.StatusBadRequest)
+            _, _ = w.Write([]byte(err.Error()))
+            return
+        }
+        w.WriteHeader(http.StatusCreated)
+    case http.MethodDelete:
+        id := r.URL.Query().Get("id")
+        if id == "" {
+            w.WriteHeader(http.StatusBadRequest)
+            return
+        }
+        if err := h.uninstallPlugin(id); err != nil {
+            w.WriteHeader(http.StatusBadRequest)
+            _, _ = w.Write([]byte(err.Error()))
+            return
+        }
+        w.WriteHeader(http.StatusNoContent)
+    default:
+        w.WriteHeader(http.StatusMethodNotAllowed)
+    }
 }
 
 func writeRPCResult(w http.ResponseWriter, id string, result any) {
