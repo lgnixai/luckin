@@ -588,7 +588,7 @@ const TabBar: React.FC<TabBarProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="min-w-0 overflow-x-auto overflow-y-hidden" style={{ width: '60%', maxWidth: '800px' }}>
+      <div className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden">
         {/* Configure sensors to require slight movement before starting drag */}
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tabs.map(t => t.id)} strategy={horizontalListSortingStrategy}>
