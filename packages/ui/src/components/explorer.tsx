@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, MoreHorizontal, Edit, Trash2, Move, FilePlus, FolderPlus, Calendar, Zap, FileText } from 'lucide-react';
+import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, MoreHorizontal, Edit, Trash2, Move, FilePlus, FolderPlus, Calendar, Zap, FileText, FileImage, FileCode, FileSpreadsheet, FileCog, FileVideo, FileAudio, Archive } from 'lucide-react';
 import type { ITreeNode } from '@lgnixai/luckin-types';
 import { ContextMenu } from "@/components/context-menu";
 import { useEditorService } from '@lgnixai/luckin-core';
@@ -28,6 +28,82 @@ interface TreeNodeProps {
   onCreateFolder: (parentId: string) => void;
 }
 
+// 获取文件图标
+const getFileIcon = (fileName: string) => {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  const iconProps = { className: "w-4 h-4 mr-2 flex-shrink-0" };
+  
+  switch (ext) {
+    case 'md':
+    case 'txt':
+    case 'rtf':
+      return <FileText {...iconProps} className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />;
+    case 'js':
+    case 'jsx':
+    case 'ts':
+    case 'tsx':
+    case 'py':
+    case 'java':
+    case 'cpp':
+    case 'c':
+    case 'cs':
+    case 'php':
+    case 'rb':
+    case 'go':
+    case 'rs':
+    case 'swift':
+    case 'kt':
+      return <FileCode {...iconProps} className="w-4 h-4 mr-2 text-green-500 flex-shrink-0" />;
+    case 'json':
+    case 'xml':
+    case 'yaml':
+    case 'yml':
+    case 'toml':
+    case 'ini':
+    case 'cfg':
+    case 'conf':
+      return <FileCog {...iconProps} className="w-4 h-4 mr-2 text-orange-500 flex-shrink-0" />;
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif':
+    case 'bmp':
+    case 'svg':
+    case 'webp':
+    case 'ico':
+      return <FileImage {...iconProps} className="w-4 h-4 mr-2 text-purple-500 flex-shrink-0" />;
+    case 'csv':
+    case 'xlsx':
+    case 'xls':
+    case 'ods':
+      return <FileSpreadsheet {...iconProps} className="w-4 h-4 mr-2 text-teal-500 flex-shrink-0" />;
+    case 'mp4':
+    case 'avi':
+    case 'mov':
+    case 'wmv':
+    case 'flv':
+    case 'webm':
+    case 'mkv':
+      return <FileVideo {...iconProps} className="w-4 h-4 mr-2 text-red-500 flex-shrink-0" />;
+    case 'mp3':
+    case 'wav':
+    case 'flac':
+    case 'aac':
+    case 'ogg':
+    case 'm4a':
+      return <FileAudio {...iconProps} className="w-4 h-4 mr-2 text-pink-500 flex-shrink-0" />;
+    case 'zip':
+    case 'rar':
+    case '7z':
+    case 'tar':
+    case 'gz':
+    case 'bz2':
+      return <Archive {...iconProps} className="w-4 h-4 mr-2 text-yellow-500 flex-shrink-0" />;
+    default:
+      return <File {...iconProps} className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />;
+  }
+};
+
 const TreeNode: React.FC<TreeNodeProps> = ({ 
   nodeId, 
   level, 
@@ -41,12 +117,17 @@ const TreeNode: React.FC<TreeNodeProps> = ({
   onCreateFolder
 }) => {
   const { nodesById, listChildren } = useFileTree();
+  const { getDocument } = useDocuments();
   const [isRenaming, setIsRenaming] = React.useState(false);
   const [newName, setNewName] = React.useState('');
   const [menuPos, setMenuPos] = React.useState<{x: number; y: number} | null>(null);
 
   const node = nodesById[nodeId];
   if (!node) return null;
+
+  // 检查文件是否已修改
+  const doc = node.documentId ? getDocument(node.documentId) : null;
+  const isModified = doc?.isDirty || false;
 
   const isSelected = selectedId === nodeId;
   const isFolder = node.type === 'folder';
@@ -129,7 +210,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
             <Folder className="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" />
           )
         ) : (
-          <File className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+          getFileIcon(node.name)
         )}
         
         {isRenaming ? (
@@ -144,7 +225,12 @@ const TreeNode: React.FC<TreeNodeProps> = ({
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <span className="text-sm truncate flex-1">{node.name}</span>
+          <div className="flex items-center flex-1 min-w-0">
+            <span className="text-sm truncate">{node.name}</span>
+            {isModified && (
+              <div className="ml-1 w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0" title="未保存的更改" />
+            )}
+          </div>
         )}
 
         {/* Action buttons on hover */}
@@ -318,15 +404,20 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
   const handleSelect = async (nodeId: string) => {
     setSelectedNode(nodeId);
     const node = nodesById[nodeId];
-    console.log(node)
+    
     if (node && node.type === 'file') {
+      // 打开文件在编辑器中（新标签或激活已有标签）
       const fileInfo = openFileInEditor(nodeId);
       if (fileInfo) {
-        const doc = getDocument(fileInfo.documentId);
-        const content = doc?.content ?? defaultContentFor(node.name);
-        const lang = guessLanguage(node.name);
-        
-        openFile(node.name, content, lang);
+        // 通过自定义事件通知ObsidianLayout组件打开/激活标签
+        window.dispatchEvent(new CustomEvent('file-tree-open-file', {
+          detail: {
+            documentId: fileInfo.documentId,
+            title: node.name,
+            filePath: fileInfo.filePath,
+            nodeId: nodeId
+          }
+        }));
       }
     }
   };
@@ -359,6 +450,11 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
     setExpandedNodes(prev => new Set([...prev, parentId]));
     // 选中新创建的文件
     setSelectedNode(fileId);
+    
+    // 立即在编辑器中打开新文件
+    setTimeout(() => {
+      handleSelect(fileId);
+    }, 50); // 短暂延迟确保文件创建完成
   };
 
   const handleCreateFolder = (parentId: string) => {
