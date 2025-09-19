@@ -146,14 +146,14 @@ const Tab: React.FC<TabProps> = ({
               : "bg-tab-inactive hover:bg-tab-hover"
           )}
           style={{ 
-            minWidth: '60px',
+            minWidth: '10px',
             maxWidth: '160px',
             flex: '0 1 120px'
           }}
         >
           {/* Tab content (drag handle area) */}
           <div 
-            className="flex-1 flex items-center px-3 cursor-pointer min-w-0"
+            className="flex-1 flex items-center px-1 cursor-pointer min-w-0"
             onClick={() => onActivate(tab.id)}
             {...(!isRenaming ? dragHandleProps : {})}
           >
@@ -176,7 +176,7 @@ const Tab: React.FC<TabProps> = ({
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <span className="text-sm text-foreground truncate">
+              <span className="text-sm text-foreground truncate overflow-hidden whitespace-nowrap text-ellipsis">
                 {doc?.name ?? tab.title}
               </span>
             )}
@@ -596,6 +596,7 @@ const TabBar: React.FC<TabBarProps> = ({
               <div 
                 onClick={onAddTab}
                 className="ml-1 mr-1 my-1 px-1.5 flex items-center justify-center rounded hover:bg-nav-hover text-muted-foreground cursor-pointer"
+                style={{ flexShrink: 0, minWidth: '24px' }}
                 title="新建标签页 (Ctrl+T)"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
