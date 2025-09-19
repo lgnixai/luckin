@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Manifest v1",
+  "type": "object",
+  "required": ["id", "name", "version"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9-_.]+$"},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "minAppVersion": {"type": "string"},
+    "author": {"type": "string"},
+    "description": {"type": "string"},
+    "entrypoints": {
+      "type": "object",
+      "properties": {
+        "frontend": {"type": "string"},
+        "backend": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "vault.read",
+          "vault.write",
+          "commands.register",
+          "views.register",
+          "markdown.process",
+          "workspace.read",
+          "workspace.write",
+          "network.request",
+          "*"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}
+

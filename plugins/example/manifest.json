@@ -1,0 +1,10 @@
+{
+  "id": "example.hello",
+  "name": "Hello Example",
+  "version": "0.1.0",
+  "author": "Example",
+  "description": "Demo plugin manifest",
+  "entrypoints": {"frontend": "sdk://example/hello"},
+  "permissions": ["vault.read", "vault.write"]
+}
+
