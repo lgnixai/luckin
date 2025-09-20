@@ -116,9 +116,31 @@ const ObsidianLayout: React.FC = () => {
     };
 
     window.addEventListener('file-tree-open-file', handleFileTreeOpenFile as EventListener);
+    const handleWelcomeCloseActive = () => {
+      // 关闭当前活动面板中的活动标签
+      const findActiveIn = (node: PanelNode): { panelId: string; tabId: string } | null => {
+        if (node.type === 'leaf' && node.tabs) {
+          const active = node.tabs.find((t: any) => t.isActive);
+          if (active) return { panelId: node.id, tabId: active.id };
+        }
+        if (node.children) {
+          for (const child of node.children) {
+            const res = findActiveIn(child);
+            if (res) return res;
+          }
+        }
+        return null;
+      };
+      const active = findActiveIn(panelTree);
+      if (active) {
+        handleCloseTab(active.panelId)(active.tabId);
+      }
+    };
+    window.addEventListener('welcome-close-active', handleWelcomeCloseActive as EventListener);
     
     return () => {
       window.removeEventListener('file-tree-open-file', handleFileTreeOpenFile as EventListener);
+      window.removeEventListener('welcome-close-active', handleWelcomeCloseActive as EventListener);
     };
   }, [panelTree, handleActivateTab, openDocumentInTargetPanel]);
 

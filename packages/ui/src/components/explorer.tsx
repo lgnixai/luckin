@@ -135,11 +135,18 @@ const TreeNode: React.FC<TreeNodeProps> = ({
   const hasChildren = children.length > 0;
   const expanded = expandedNodes.has(nodeId);
 
+  // 单击行不再切换展开状态，避免“新建文件后父文件夹被折叠”的问题
+  // 仅由左侧的箭头按钮或双击来切换展开/折叠
   const handleClick = () => {
+    onSelect(nodeId);
+  };
+
+  const handleDoubleClick = () => {
     if (isFolder) {
       onToggle(nodeId);
+    } else {
+      onSelect(nodeId);
     }
-    onSelect(nodeId);
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -182,6 +189,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
         style={{ paddingLeft: `${level * 12 + 8}px` }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
+        onDoubleClick={handleDoubleClick}
       >
         {isFolder && (
           <Button
@@ -330,8 +338,20 @@ const TreeNode: React.FC<TreeNodeProps> = ({
   );
 };
 
+const EXPANDED_STORAGE_KEY = 'obsidian.clone.filetree.expanded';
+
 export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
-  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set(['root']));
+  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set(['root']);
+    try {
+      const raw = localStorage.getItem(EXPANDED_STORAGE_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw) as string[];
+        return new Set(arr);
+      }
+    } catch {}
+    return new Set(['root']);
+  });
   const [selectedNode, setSelectedNode] = React.useState<string>();
   const { rootId, nodesById, listChildren, createFile, createFolder, renameNode, deleteNode, setDocumentId } = useFileTree();
   const { createDocument, getDocument, renameDocument } = useDocuments();
@@ -345,6 +365,15 @@ export const Explorer: React.FC<ExplorerProps> = ({ className }) => {
       setExpandedNodes(prev => new Set([...prev, rootId]));
     }
   }, [rootId]);
+
+  // 持久化展开状态
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const arr = Array.from(expandedNodes);
+      localStorage.setItem(EXPANDED_STORAGE_KEY, JSON.stringify(arr));
+    } catch {}
+  }, [expandedNodes]);
 
   const handleToggle = (nodeId: string) => {
     setExpandedNodes(prev => {
