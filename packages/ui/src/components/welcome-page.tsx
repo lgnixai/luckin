@@ -1,11 +1,27 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
+import { useDocuments } from '@/stores/documents';
+
+interface WelcomeActionsProps {
+  onNewFile?: () => void;
+  onOpenFile?: () => void;
+  onOpenRecent?: (documentId: string) => void;
+  onCloseTab?: () => void;
+}
 
 export interface WelcomePageProps {
   className?: string;
+  // 可选的操作回调，用于在欢迎页上直接进行操作
+  onNewFile?: WelcomeActionsProps['onNewFile'];
+  onOpenFile?: WelcomeActionsProps['onOpenFile'];
+  onOpenRecent?: WelcomeActionsProps['onOpenRecent'];
+  onCloseTab?: WelcomeActionsProps['onCloseTab'];
 }
 
-export const WelcomePage: React.FC<WelcomePageProps> = ({ className }) => {
+export const WelcomePage: React.FC<WelcomePageProps> = ({ className, onNewFile, onOpenFile, onOpenRecent, onCloseTab }) => {
+  const { documentsById } = useDocuments();
+  const recent = React.useMemo(() => Object.values(documentsById).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5), [documentsById]);
+
   return (
     <div className={cn("flex-1 flex flex-col items-center justify-center bg-background", className)}>
       {/* Luckin Logo */}
@@ -50,6 +66,37 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({ className }) => {
         </p>
       </div>
       
+      {/* Quick actions */}
+      <div className="mt-8 space-y-3 text-center">
+        <div
+          className="text-primary hover:underline cursor-pointer text-lg"
+          onClick={onNewFile}
+        >
+          创建新文件 (Ctrl+N)
+        </div>
+        <div
+          className="text-primary hover:underline cursor-pointer text-lg"
+          onClick={onOpenFile}
+        >
+          打开文件 (Ctrl+O)
+        </div>
+        <div
+          className="text-primary hover:underline cursor-pointer text-lg"
+          onClick={() => {
+            if (recent[0] && onOpenRecent) onOpenRecent(recent[0].id);
+          }}
+          title={recent[0] ? `最近: ${recent[0].name}` : '暂无近期文件'}
+        >
+          查看近期文件
+        </div>
+        <div
+          className="text-primary hover:underline cursor-pointer text-lg"
+          onClick={onCloseTab}
+        >
+          关闭标签页 (Ctrl+W)
+        </div>
+      </div>
+
       {/* Welcome Content */}
       <div className="mt-12 max-w-2xl text-center">
         <h2 className="text-xl font-semibold text-foreground mb-4">Welcome to Luckin 3.x</h2>
